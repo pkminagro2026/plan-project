@@ -5,7 +5,7 @@
 ---
 
 ## 1. Ringkasan & Tujuan
-Membangun **1 dashboard Looker Studio** dari 1 spreadsheet Google (5 sheet) untuk HRD & Manajemen: demografi, attrition/turnover, training, rating Google Maps, dan penjualan/okupansi. Simple, tidak sesak, dipakai ulang (template).
+Membangun **1 dashboard Looker Studio** dari 1 spreadsheet Google (6 tab) untuk HRD & Manajemen: demografi, attrition/turnover, training, rating Google Maps, dan penjualan/okupansi. Simple, tidak sesak, dipakai ulang (template).
 
 **Perbaikan dari dashboard lama (mangkrak):** hapus tab COMPENSATION/VALUE/AGRIBISNIS dll, buang teks bertumpuk ("Tidak ada data" menumpuk), buang MARGIN, ganti metrik surplus jadi **Selisih Target** + **Pemasukan per Karyawan**.
 
@@ -13,6 +13,8 @@ Membangun **1 dashboard Looker Studio** dari 1 spreadsheet Google (5 sheet) untu
 
 ## 2. Inventaris Sumber Data
 Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
+
+**6 tab (urutan tetap, jangan digeser):** GOOGLE RIVIEW · QUESTIONNAIRE (long template) · TRAINING RECORD · BTK TO SALES · DATA ATTRITION · DATA TENAGA KERJA.
 
 | Domain | Sheet (gid) | Kolom inti | Kondisi saat init |
 |---|---|---|---|
@@ -22,7 +24,7 @@ Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
 | Review | GOOGLE RIVIEW (`791906249`) | NO, NAMA, TANGGAL, RATING | Lengkap (5★160, 4★34, 3★5, 2★4, 1★11) |
 | Sales | BTK TO SALES (`1035995509`) | BULAN, INCOME, TAX, TOTAL, MARGIN, TARGET, ANAK/GURU/DEWASA, OKUPANSI, okupansi wahana & room | INCOME/TAX/MARGIN kosong (template) |
 
-**Questionnaire → halaman P6.**
+**Questionnaire → tab long template (15 kolom) → halaman P6.**
 
 ---
 
@@ -50,44 +52,17 @@ Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
 
 ---
 
-## 4. Data Prep (helper column di spreadsheet)
-**DATA TENAGA KERJA** (P=TGL LAHIR, F=TGL JOIN, Z=STATUS, V=JK, AI=USIA, AH=MASA KERJA):
-```gs
-AI2 (Usia)         =IFERROR(DATEDIF(P2,TODAY(),"Y"),"")
-AH2 (Masa Kerja)   =IFERROR(DATEDIF(F2,TODAY(),"Y"),"")
-AK2 (Rentang Usia) =IF(AI2="","",IFS(AI2<20,"<20",AI2<=40,"20-40",AI2<=58,"41-58",TRUE,">58"))
-AL2 (Status bersih)=IFERROR(PROPER(TRIM(Z2)),"")
-AM2 (Gender)       =IF(V2="L","Laki-laki",IF(V2="P","Perempuan",""))
-```
-**TRAINING RECORD** (F=DEPARTEMEN ← turunkan dari C=JABATAN):
-```gs
-F2 = IFS(
-  REGEXMATCH(C2,"(?i)housekeep"),"HOUSEKEEPING",
-  REGEXMATCH(C2,"(?i)security"),"SECURITY",
-  REGEXMATCH(C2,"(?i)kebun"),"KEBUN",
-  REGEXMATCH(C2,"(?i)toko|cafe|barista"),"TOKO & CAFE",
-  REGEXMATCH(C2,"(?i)kuljar|kultur"),"KULTUR JARINGAN",
-  REGEXMATCH(C2,"(?i)ternak|fauna|mini zoo"),"FAUNA",
-  REGEXMATCH(C2,"(?i)edutainment"),"EDUTAINMENT",
-  REGEXMATCH(C2,"(?i)markom|marcom"),"MARKETING COMMUNICATION",
-  REGEXMATCH(C2,"(?i)keuangan|accounting|fap"),"FINANCE ACCOUNTING & PURCHASING",
-  REGEXMATCH(C2,"(?i)driver"),"DRIVER",
-  TRUE,"LAINNYA")
-P2 (Bulan) =IFERROR(TEXT(H2,"mmm yyyy"),"")
-```
-**BTK TO SALES** (B=INCOME, C=TAX, D=TOTAL, F=TARGET):
-```gs
-C2 (Tax 10%)        =IFERROR(B2*0.1,"")
-D2 (Net Income)     =IFERROR(B2-C2,"")
--   (Selisih dihitung di Looker, bukan di sheet)
--   (Pendapatan/Hari & Pemasukan/Karyawan dihitung di Looker)
-```
-**DATA ATTRITION** (B=Existing, C=Resign, D=Voluntary, F=Baru):
-```gs
-Turnover  =IFERROR(C2/B2,"")
-Voluntary =IFERROR(D2/B2,"")
-Net Growth=IFERROR((F2-C2)/B2,"")
-```
+## 4. Data Prep — Skema Database + Perbaikan Format + Upload Append
+
+Database = spreadsheet ini sendiri; **6 tab urutan tetap** (lihat §2), header **apa adanya** (tanpa rename).
+
+**Perbaikan format (hanya nilai/tipe, bukan kolom):**
+- Tanggal → `yyyy-mm-dd`; kolom bulan → `yyyy-mm`.
+- Angka → numerik: desimal titik, tanpa pemisah ribuan; persen → angka (mis. `"14,99%"` → `0.1499`).
+- Bersihkan nilai rusak: `USIA=127`, `#REF!`.
+- `MARGIN` & kolom kosong **diabaikan di Looker, tidak dihapus**.
+
+**Upload append (perbaruan tab):** file ber-header identik → `File ▸ Import ▸ Upload ▸ Append rows to current sheet`; boleh parsial (isi tab yang diperlukan saja); cek kolom/posisi tab tidak bergeser; Looker → Refresh.
 
 ---
 
@@ -231,13 +206,13 @@ Gender           = CASE WHEN JENIS KELAMIN="L" THEN "Laki-laki" ELSE "Perempuan"
 Turnover Rate    = SUM(Jumlah Karyawan Resign) / AVG(Jumlah karyawan Existing)
 Voluntary Rate   = SUM(Jumlah Voluntary Resign) / AVG(Jumlah karyawan Existing)
 Target Turnover  = 0.10
-Bulan (date)     = PARSE_DATE("%m/%d/%Y", Bulan)
+Bulan (date)     = PARSE_DATE("%Y-%m-%d", Bulan)
 
 --- Training ---
 Total Jam        = SUM(TOTAL JAM TRAINING (JAM))
 Peserta Unik     = COUNT_DISTINCT(NIK)
 Rata N-Gain      = AVG(N GAIN SCORE)
-Bulan Training   = TODATE(PARSE_DATE("%m/%d/%Y", TANGGAL), "MONTH")
+Bulan Training   = TODATE(PARSE_DATE("%Y-%m-%d", TANGGAL), "MONTH")
 
 --- Review ---
 Avg Rating       = AVG(RATING)
@@ -258,14 +233,14 @@ Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing) 
 Responden        = COUNT_DISTINCT(response_id)
 Rata Skor        = AVG(score)
 Skor %           = AVG((score - scale_min)/(scale_max - scale_min))
-Bln              = TODATE(PARSE_DATE("%m/%d/%y", visit_date), "MONTH")
+Bln              = TODATE(PARSE_DATE("%Y-%m-%d", visit_date), "MONTH")
 ```
 
 ---
 
 ## 9. Langkah Eksekusi (saat disetujui)
-1. **Prep sheet:** tambah helper column (§4) di DATA TENAGA KERJA, TRAINING RECORD, BTK, ATTRITION.
-2. **Looker Studio:** buat 1 data source Google Sheets (5 sheet/tab, "Include all") → lalu buat 3 blend (§5).
+1. **Perbaiki format** tiap tab (tanggal/angka) sesuai §4; **bekukan header** sebagai template (urutan tab tetap).
+2. **Looker Studio:** buat 1 data source Google Sheets (6 tab, "Include all") → buat blend (§5).
 3. **Bangun 6 halaman** sesuai wireframe (§7); pasang filter & calculated field (§8).
 4. **Poles:** warna/label konsisten, cek tidak ada chart bertumpuk, uji data kosong (IFERROR/target).
 5. **Uji terima** (§10) lalu bagikan.
@@ -281,7 +256,7 @@ Bln              = TODATE(PARSE_DATE("%m/%d/%y", visit_date), "MONTH")
 ## 11. Deliverable (dibuat saat eksekusi)
 - `PRD.md` — dokumen PRD (§1–§10).
 - `wireframes.md` — 6 wireframe ASCII (§7).
-- `rumus.md` — helper Sheets + calculated field Looker (§4, §8).
+- `rumus.md` — skema database + upload append + setelan Looker (§B–§D).
 
 ## 12. Risiko / Loose Ends
 - Nama & TGL LAHIR kosong (template) → tabel nama & usia baru bermakna setelah data terisi.

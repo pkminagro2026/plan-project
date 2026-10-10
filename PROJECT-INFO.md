@@ -455,14 +455,28 @@ php artisan optimize
 
 ---
 
-## 17. Integrasi Looker — Export Long-Format (manual)
+## 17. Integrasi Looker — Append Sesuai Template (manual)
 
-Tombol "Export Looker" di Manage Respons. Mengikuti filter aktif. Kolom (16, tetap):
+Update data ke Google Sheets via **upload append** mengikuti **template utama** (header apa adanya); duplikat dibiarkan.
 
-`response_id, submitted_at, visit_date, respondent_name, respondent_school, questionnaire, questionnaire_slug, public_token, category, question, question_type, score, option, scale_min, scale_max`
+Alur: siapkan file header sama → tab domain tujuan → `File ▸ Import ▸ Upload ▸ Append rows to current sheet` → Looker Refresh. Boleh parsial (isi tab yang diperlukan). Guard submit ganda tetap di app.
 
-- rating → score; radio → option.
-- Default filter: status=submitted (draft dikecualikan).
-- Alur manual: Export Looker → Sheets tab APP-YYYY-MM (Replace) → LOOKER_ALL (union) → Refresh Looker.
-- Anti-duplikat: 1 tab = 1 periode; jangan Replace tab periode berbeda.
-- Guard submit ganda di app (cegah double-submit), bukan di Looker.
+### Mirror Long Template Questionaire (15 kolom)
+
+| # | Kolom | Tipe |
+|---|---|---|
+| 1 | response_id | Text (kunci) |
+| 2 | submitted_at | DateTime |
+| 3 | visit_date | Date `yyyy-mm-dd` |
+| 4 | respondent_name | Text |
+| 5 | respondent_school | Text |
+| 6 | questionnaire | Text |
+| 7 | questionnaire_slug | Text |
+| 8 | public_token | Text |
+| 9 | category | Text |
+| 10 | question | Text |
+| 11 | question_type | Text (rating/radio) |
+| 12 | score | Number |
+| 13 | option | Text |
+| 14 | scale_min | Number |
+| 15 | scale_max | Number |

@@ -1,51 +1,6 @@
-# Rumus — Helper Google Sheets & Calculated Field Looker Studio
+# Rumus — Skema Database Looker, Upload Append & Calculated Field
 
-## A. Helper Column (Google Sheets)
-
-**DATA TENAGA KERJA** (P=TGL LAHIR, F=TGL JOIN, Z=STATUS, V=JK, AI=USIA, AH=MASA KERJA):
-```gs
-AI2 (Usia)         =IFERROR(DATEDIF(P2,TODAY(),"Y"),"")
-AH2 (Masa Kerja)   =IFERROR(DATEDIF(F2,TODAY(),"Y"),"")
-AK2 (Rentang Usia) =IF(AI2="","",IFS(AI2<20,"<20",AI2<=40,"20-40",AI2<=58,"41-58",TRUE,">58"))
-AL2 (Status bersih)=IFERROR(PROPER(TRIM(Z2)),"")
-AM2 (Gender)       =IF(V2="L","Laki-laki",IF(V2="P","Perempuan",""))
-```
-
-**TRAINING RECORD** (F=DEPARTEMEN ← turunkan dari C=JABATAN):
-```gs
-F2 = IFS(
-  REGEXMATCH(C2,"(?i)housekeep"),"HOUSEKEEPING",
-  REGEXMATCH(C2,"(?i)security"),"SECURITY",
-  REGEXMATCH(C2,"(?i)kebun"),"KEBUN",
-  REGEXMATCH(C2,"(?i)toko|cafe|barista"),"TOKO & CAFE",
-  REGEXMATCH(C2,"(?i)kuljar|kultur"),"KULTUR JARINGAN",
-  REGEXMATCH(C2,"(?i)ternak|fauna|mini zoo"),"FAUNA",
-  REGEXMATCH(C2,"(?i)edutainment"),"EDUTAINMENT",
-  REGEXMATCH(C2,"(?i)markom|marcom"),"MARKETING COMMUNICATION",
-  REGEXMATCH(C2,"(?i)keuangan|accounting|fap"),"FINANCE ACCOUNTING & PURCHASING",
-  REGEXMATCH(C2,"(?i)driver"),"DRIVER",
-  TRUE,"LAINNYA")
-P2 (Bulan) =IFERROR(TEXT(H2,"mmm yyyy"),"")
-```
-
-**BTK TO SALES** (B=INCOME, C=TAX, D=TOTAL, F=TARGET):
-```gs
-C2 (Tax 10%)        =IFERROR(B2*0.1,"")
-D2 (Net Income)     =IFERROR(B2-C2,"")
--   (Selisih dihitung di Looker, bukan di sheet)
--   (Pendapatan/Hari & Pemasukan/Karyawan dihitung di Looker)
-```
-
-**DATA ATTRITION** (B=Existing, C=Resign, D=Voluntary, F=Baru):
-```gs
-Turnover  =IFERROR(C2/B2,"")
-Voluntary =IFERROR(D2/B2,"")
-Net Growth=IFERROR((F2-C2)/B2,"")
-```
-
----
-
-## B. Calculated Field (Looker Studio)
+## A. Calculated Field (Looker Studio)
 
 ```
 --- Demografi ---
@@ -57,13 +12,13 @@ Gender           = CASE WHEN JENIS KELAMIN="L" THEN "Laki-laki" ELSE "Perempuan"
 Turnover Rate    = SUM(Jumlah Karyawan Resign) / AVG(Jumlah karyawan Existing)
 Voluntary Rate   = SUM(Jumlah Voluntary Resign) / AVG(Jumlah karyawan Existing)
 Target Turnover  = 0.10
-Bulan (date)     = PARSE_DATE("%m/%d/%Y", Bulan)
+Bulan (date)     = PARSE_DATE("%Y-%m-%d", Bulan)
 
 --- Training ---
 Total Jam        = SUM(TOTAL JAM TRAINING (JAM))
 Peserta Unik     = COUNT_DISTINCT(NIK)
 Rata N-Gain      = AVG(N GAIN SCORE)
-Bulan Training   = TODATE(PARSE_DATE("%m/%d/%Y", TANGGAL), "MONTH")
+Bulan Training   = TODATE(PARSE_DATE("%Y-%m-%d", TANGGAL), "MONTH")
 
 --- Review ---
 Avg Rating       = AVG(RATING)
@@ -83,40 +38,95 @@ Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing) 
 
 ---
 
-## C. Questionaire — Long Format (untuk Looker)
+## B. Database Looker (Template Utama)
 
-### C1. Tab HISTORIS — unpivot QUESTIONNAIRE (paste sekali, lalu Values-only)
+Database = **spreadsheet ini sendiri** (1 konektor Google Sheets). **6 tab, urutan tetap (jangan digeser)**:
+1. GOOGLE RIVIEW
+2. QUESTIONNAIRE — **long template**
+3. TRAINING RECORD
+4. BTK TO SALES
+5. DATA ATTRITION
+6. DATA TENAGA KERJA
+
+Aturan: **header apa adanya** (tanpa rename); **perbaikan format = hanya nilai/tipe**, bukan kolom; `MARGIN` & kolom kosong **diabaikan di Looker, tidak dihapus**.
+
+**Tab 1 · GOOGLE RIVIEW**
 ```
-=QUERY(VSTACK(
-  {"response_id","submitted_at","visit_date","respondent_name","respondent_school",
-   "questionnaire","questionnaire_slug","public_token","category","question","question_type",
-   "score","option","scale_min","scale_max"};
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Fasilitas","Fasilitas Toilet","rating",QUESTIONNAIRE!F2:F,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Fasilitas","Fasilitas Meeting Poin","rating",QUESTIONNAIRE!G2:G,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Fasilitas","Fasilitas Wara Wiri","rating",QUESTIONNAIRE!H2:H,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Pelayanan","Penjelasan Sales","rating",QUESTIONNAIRE!E2:E,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Pelayanan","Pengarahan Tour Guide","rating",QUESTIONNAIRE!I2:I,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Produk","Keragaman Permainan Edukasi","rating",QUESTIONNAIRE!J2:J,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Produk","Citarasa Katering","rating",QUESTIONNAIRE!K2:K,"",1,7));
-  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Kepuasan","Niat Kembali","radio","",QUESTIONNAIRE!L2:L,1,7))
-),"select * where Col1 <> ''",0)
+NO FMT(number; unik nanti) · NAMA FMT(trim) · TANGGAL FMT(date) · RATING number · kolom 5–26 ABAIKAN
 ```
 
-### C2. Tab APP-YYYY-MM — hasil Export Looker
+**Tab 2 · QUESTIONNAIRE — LONG TEMPLATE (15 kolom)**
+| # | Kolom | Tipe |
+|---|---|---|
+| 1 | response_id | Text (kunci) |
+| 2 | submitted_at | DateTime |
+| 3 | visit_date | Date `yyyy-mm-dd` |
+| 4 | respondent_name | Text |
+| 5 | respondent_school | Text |
+| 6 | questionnaire | Text |
+| 7 | questionnaire_slug | Text |
+| 8 | public_token | Text |
+| 9 | category | Text |
+| 10 | question | Text |
+| 11 | question_type | Text (rating/radio) |
+| 12 | score | Number |
+| 13 | option | Text |
+| 14 | scale_min | Number |
+| 15 | scale_max | Number |
+
+**Tab 3 · TRAINING RECORD**
 ```
-(Import CSV → Replace sheet; tanpa kolom bantu)
+NIK key · NAMA PESERTA TRAINING · JABATAN · STATUS · DIVISI · " DEPARTEMEN " (apa adanya) · NAMA TRAINING · TANGGAL AWAL PELAKSANAAN FMT(date) · NAMA PEMATERI TRAINING · TOTAL JAM TRAINING (JAM) FMT(number) · PRE TEST FMT(number) · POST TEST FMT(number) · POST - PRE FMT(number) · SCORE IDEAL FMT(number) · N GAIN SCORE FMT(number) · kolom 16–29 ABAIKAN
 ```
 
-### C3. Tab LOOKER_ALL — sumber tunggal Looker
+**Tab 4 · BTK TO SALES**
 ```
-={HISTORIS!A2:P; APP-2026-01!A2:P; APP-2026-02!A2:P}
-# "1 tab = 1 periode". Menambah bulan = tambahkan APP-YYYY-MM ke union.
+BULAN FMT(date yyyy-mm) · INCOME FMT(number) · TAX 10% FMT(number) · TOTAL number · MARGIN ABAIKAN · TARGET FMT(number) · ANAK FMT(number) · GURU FMT(number) · DEWASA FMT(number) · TOTAL CUSTOMER FMT(number) · OKUPANSI FMT(number) · PERSENTASE OKUPANSI FMT(number) · % ANAK FMT(number) · % GURU FMT(number) · % DEWASA FMT(number) · (label wahana) ABAIKAN · (OKUPANSI MINA PADI … OKUPANSI GLAMPING) FMT(number)
 ```
 
-### C4. Calculated Field (Looker Studio)
+**Tab 5 · DATA ATTRITION**
 ```
-Responden = COUNT_DISTINCT(response_id)
-Rata Skor = AVG(score)
-Skor %    = AVG((score - scale_min)/(scale_max - scale_min))
-Bln       = TODATE(PARSE_DATE("%m/%d/%y", visit_date), "MONTH")
+Bulan FMT(date yyyy-mm) · Jumlah karyawan Existing · Jumlah Karyawan Resign · Jumlah Voluntary Resign · Jumlah Involuntary Resign · Jumlah karyawan baru · Jumlah Karyawan Baru Resign (semua number)
+```
+
+**Tab 6 · DATA TENAGA KERJA**
+```
+NIK key · NO. KTP · NO. KK · NAMA · INISIAL · TGL JOIN FMT(date) · GRUP ABSEN · COMPANY · DEPARTEMEN · SECTION · DIVISI · POSISI · JABATAN · DESA · TPT LAHIR · TGL LAHIR FMT(date) · ALAMAT · NO HP teks · EMERGENCY CONTACT · EMAIL · AGAMA · JENIS KELAMIN · MARITAL STATUS · MOTHER NAME · BLOOD TYPE · STATUS KARYAWAN · KONTRAK KE FMT(number) · PKWT PERTAMA/AWAL/AKHIR FMT(date) · PENDIDIKAN (KHS) · PENDIDIKAN · SISA KONTRAK · MASA KERJA FMT(number,127) · USIA FMT(number,127) · (kosong) ABAIKAN · (kosong/#REF!) ABAIKAN
+```
+
+---
+
+## C. Upload Append (perbaruan tab)
+
+**Aturan:** file upload ber-**header identik** dengan tab; **append** baris di bawah; jangan tambah/kurangi/rename/geser kolom; duplikat dibiarkan; boleh parsial (isi tab yang diperlukan saja).
+
+**Langkah:**
+1. Siapkan file (CSV/XLSX) header sama.
+2. Buka spreadsheet → tab tujuan.
+3. `File ▸ Import ▸ Upload` → **Append rows to current sheet** (atau copas di baris kosong berikutnya).
+4. Cek kolom & posisi tab tidak bergeser.
+5. Looker → **Refresh**.
+
+> Tab kosong → chart "No data" (bukan error); hindari chart blend bila salah satu tab belum diisi.
+
+---
+
+## D. Setelan Looker Studio
+
+- **Connector:** Google Sheets → spreadsheet ini → pilih semua tab.
+- **Field type:** set sesuai §B; sembunyikan kolom ABAIKAN.
+- **Calculated field** (contoh):
+```
+Headcount          = COUNT(NIK)
+Total Jam          = SUM(TOTAL JAM TRAINING (JAM))
+Rata N-Gain        = AVG(N GAIN SCORE)
+Avg Rating         = AVG(RATING)
+Turnover           = SUM(Jumlah Karyawan Resign) / AVG(Jumlah karyawan Existing)
+Income             = SUM(INCOME)
+%Achieve           = SUM(INCOME) / SUM(TARGET)
+Okupansi %         = AVG(PERSENTASE OKUPANSI)
+Responden          = COUNT_DISTINCT(response_id)
+Rata Skor          = AVG(score)
+Skor %             = AVG((score - scale_min)/(scale_max - scale_min))
+Bln                = TODATE(PARSE_DATE("%Y-%m-%d", visit_date), "MONTH")
 ```

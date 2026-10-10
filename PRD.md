@@ -208,17 +208,37 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Aturan | Tidak bisa nonaktif/hapus diri sendiri; minimal 1 super admin aktif |
 | Acceptance | User nonaktif gagal login; password baru (di-set admin) langsung berlaku |
 
-### F10 — Export Looker (Long-Format)
+### F10 — Export Long-Format (Append Sesuai Template)
 
 | Aspek | Detail |
 |---|---|
-| Deskripsi | Tombol "Export Looker" di Manage Respons; hasilkan CSV long 16 kolom untuk Looker Studio |
-| Cakupan | Mengikuti filter aktif (Kuesioner/Periode/Sekolah/Status/Niat); default status=submitted |
+| Deskripsi | Hasilkan CSV long sesuai **Mirror Long Template Questionaire** (di bawah) |
+| Cakupan | Semua respons submitted (semua kuesioner) |
 | Format | 1 baris = 1 jawaban (rating→score; radio→option) |
 | Aksi | Stream CSV `looker_answers_YYYYMMDD.csv` |
-| Aturan | Tidak ada tabel/cron/API baru; grouping = questionnaire + slug; public_token disertakan |
-| Anti-spam | Cegah submit ganda (draft_token/ip+visit_date) agar data Looker tidak dobel |
-| Acceptance | CSV 16 kolom sesuai filter; tiap tab periode menghasilkan data unik saat di-union |
+| Aturan | Update ke Google Sheets via **append** (bukan replace); header apa adanya; duplikat dibiarkan |
+| Anti-spam | Cegah submit ganda (draft_token/ip+visit_date) |
+| Acceptance | CSV cocok dengan Mirror Long Template Questionaire |
+
+#### Mirror Long Template Questionaire (15 kolom)
+
+| # | Kolom | Tipe |
+|---|---|---|
+| 1 | response_id | Text (kunci) |
+| 2 | submitted_at | DateTime |
+| 3 | visit_date | Date `yyyy-mm-dd` |
+| 4 | respondent_name | Text |
+| 5 | respondent_school | Text |
+| 6 | questionnaire | Text |
+| 7 | questionnaire_slug | Text |
+| 8 | public_token | Text |
+| 9 | category | Text |
+| 10 | question | Text |
+| 11 | question_type | Text (rating/radio) |
+| 12 | score | Number |
+| 13 | option | Text |
+| 14 | scale_min | Number |
+| 15 | scale_max | Number |
 
 ---
 
