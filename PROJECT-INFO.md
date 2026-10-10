@@ -452,3 +452,17 @@ php artisan db:seed
 php artisan optimize
 # Tanpa scheduler prune draft (draft tanpa batas waktu).
 ```
+
+---
+
+## 17. Integrasi Looker — Export Long-Format (manual)
+
+Tombol "Export Looker" di Manage Respons. Mengikuti filter aktif. Kolom (16, tetap):
+
+`response_id, submitted_at, visit_date, respondent_name, respondent_school, questionnaire, questionnaire_slug, public_token, category, question, question_type, score, option, scale_min, scale_max`
+
+- rating → score; radio → option.
+- Default filter: status=submitted (draft dikecualikan).
+- Alur manual: Export Looker → Sheets tab APP-YYYY-MM (Replace) → LOOKER_ALL (union) → Refresh Looker.
+- Anti-duplikat: 1 tab = 1 periode; jangan Replace tab periode berbeda.
+- Guard submit ganda di app (cegah double-submit), bukan di Looker.

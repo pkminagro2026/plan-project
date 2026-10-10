@@ -80,3 +80,43 @@ Pendapatan/Hari  = SUM(INCOME) / 20
 Okupansi %       = AVG(PERSENTASE OKUPANSI)
 Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing)  // blend by Bulan
 ```
+
+---
+
+## C. Questionaire — Long Format (untuk Looker)
+
+### C1. Tab HISTORIS — unpivot QUESTIONNAIRE (paste sekali, lalu Values-only)
+```
+=QUERY(VSTACK(
+  {"response_id","submitted_at","visit_date","respondent_name","respondent_school",
+   "questionnaire","questionnaire_slug","public_token","category","question","question_type",
+   "score","option","scale_min","scale_max"};
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Fasilitas","Fasilitas Toilet","rating",QUESTIONNAIRE!F2:F,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Fasilitas","Fasilitas Meeting Poin","rating",QUESTIONNAIRE!G2:G,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Fasilitas","Fasilitas Wara Wiri","rating",QUESTIONNAIRE!H2:H,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Pelayanan","Penjelasan Sales","rating",QUESTIONNAIRE!E2:E,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Pelayanan","Pengarahan Tour Guide","rating",QUESTIONNAIRE!I2:I,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Produk","Keragaman Permainan Edukasi","rating",QUESTIONNAIRE!J2:J,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Produk","Citarasa Katering","rating",QUESTIONNAIRE!K2:K,"",1,7));
+  IF(QUESTIONNAIRE!A2:A="","",HSTACK(QUESTIONNAIRE!A2:A,"-",TEXT(QUESTIONNAIRE!D2:D,"dd/mm/yyyy"),QUESTIONNAIRE!B2:B,QUESTIONNAIRE!C2:C,"Historis 2024","historis-2024","-","Kepuasan","Niat Kembali","radio","",QUESTIONNAIRE!L2:L,1,7))
+),"select * where Col1 <> ''",0)
+```
+
+### C2. Tab APP-YYYY-MM — hasil Export Looker
+```
+(Import CSV → Replace sheet; tanpa kolom bantu)
+```
+
+### C3. Tab LOOKER_ALL — sumber tunggal Looker
+```
+={HISTORIS!A2:P; APP-2026-01!A2:P; APP-2026-02!A2:P}
+# "1 tab = 1 periode". Menambah bulan = tambahkan APP-YYYY-MM ke union.
+```
+
+### C4. Calculated Field (Looker Studio)
+```
+Responden = COUNT_DISTINCT(response_id)
+Rata Skor = AVG(score)
+Skor %    = AVG((score - scale_min)/(scale_max - scale_min))
+Bln       = TODATE(PARSE_DATE("%m/%d/%y", visit_date), "MONTH")
+```

@@ -208,6 +208,18 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Aturan | Tidak bisa nonaktif/hapus diri sendiri; minimal 1 super admin aktif |
 | Acceptance | User nonaktif gagal login; password baru (di-set admin) langsung berlaku |
 
+### F10 — Export Looker (Long-Format)
+
+| Aspek | Detail |
+|---|---|
+| Deskripsi | Tombol "Export Looker" di Manage Respons; hasilkan CSV long 16 kolom untuk Looker Studio |
+| Cakupan | Mengikuti filter aktif (Kuesioner/Periode/Sekolah/Status/Niat); default status=submitted |
+| Format | 1 baris = 1 jawaban (rating→score; radio→option) |
+| Aksi | Stream CSV `looker_answers_YYYYMMDD.csv` |
+| Aturan | Tidak ada tabel/cron/API baru; grouping = questionnaire + slug; public_token disertakan |
+| Anti-spam | Cegah submit ganda (draft_token/ip+visit_date) agar data Looker tidak dobel |
+| Acceptance | CSV 16 kolom sesuai filter; tiap tab periode menghasilkan data unik saat di-union |
+
 ---
 
 ## 9. Aturan Bisnis Global

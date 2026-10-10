@@ -22,7 +22,7 @@ Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
 | Review | GOOGLE RIVIEW (`791906249`) | NO, NAMA, TANGGAL, RATING | Lengkap (5★160, 4★34, 3★5, 2★4, 1★11) |
 | Sales | BTK TO SALES (`1035995509`) | BULAN, INCOME, TAX, TOTAL, MARGIN, TARGET, ANAK/GURU/DEWASA, OKUPANSI, okupansi wahana & room | INCOME/TAX/MARGIN kosong (template) |
 
-**Skip:** QUESTIONNAIRE.
+**Questionnaire → halaman P6.**
 
 ---
 
@@ -42,6 +42,9 @@ Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
 | Pendapatan / Hari | `SUM(INCOME) / 20` | BTK (20 hari kerja) |
 | % Achievement | `SUM(INCOME)/SUM(TARGET)` | BTK |
 | % Okupansi | `AVG(PERSENTASE OKUPANSI)` | BTK |
+| Responden | `COUNT_DISTINCT(response_id)` | Questionaire (long) |
+| Rata Skor | `AVG(score)` | Questionaire (long) |
+| Skor % | `AVG((score − scale_min)/(scale_max − scale_min))` | Questionaire (long) |
 
 > **MARGIN dihapus total** dari semua halaman.
 
@@ -99,7 +102,8 @@ Net Growth=IFERROR((F2-C2)/B2,"")
 - **P3 Training:** kartu jam/peserta/N-Gain, bar peserta per training, bar jam per divisi, line bulanan, tabel peserta.
 - **P4 Review:** avg rating, total ulasan, distribusi bintang, tren bulanan, tabel ulasan.
 - **P5 BTK/Sales:** kartu Income/Target/%Achieve/Selisih Target/Pemasukan per Karyawan/Pendapatan per Hari; bar Income vs Target vs Selisih; line okupansi + target 70%; donut anak/guru/dewasa; bar okupansi per wahana & per room.
-**Out of scope:** QUESTIONNAIRE, tab COMPENSATION/VALUE/dll, MARGIN.
+- **P6 Questionaire:** scorecards Responden/Rata Skor/opsi teratas; bar rata skor per soal (+target 6,0); donut opsi radio; line tren per bulan; tabel detail; filter Kuesioner/Kategori/Tanggal.
+**Out of scope:** tab COMPENSATION/VALUE/dll, MARGIN.
 
 **Strategi Blend (Looker):**
 - `BTK × DATA ATTRITION` pada kunci **Bulan** → untuk Pemasukan per Karyawan.
@@ -197,7 +201,21 @@ Net Growth=IFERROR((F2-C2)/B2,"")
 | Line: % Okupansi + garis target 70%                                            |
 +---------------------------------------+----------------------------------------+
 | Bar: Okupansi per Wahana              | Bar: Okupansi per Tipe Room            |
-+---------------------------------------+----------------------------------------+
++---------------------------------------+---------------------------------------+
+```
+
+```
+======= P6 · QUESTIONAIRE / KEPUASAN PENGUNJUNG =======   [Kuesioner▾][Kategori▾][Tgl▾]
++---------+----------+----------------+-----------------+
+|Responden| Rata Skor| Opsi Teratas   | Skor Terendah   |
+|  352    |  5,79    | BELUM TAU 51.6%| Toilet 5,37     |
++---------+----------+----------------+-----------------+
+| Bar: Rata Skor per Soal (sort naik) + target 6,0 | Donut Opsi Radio |
++--------------------------------------------------+------------------+
+| Line: Tren Rata Skor per Bulan                                         |
++------------------------------------------------------------------------+
+| TABEL: ResponseID | Nama | Sekolah | Soal | Skor/Opsi   | Kuesioner     |
++------------------------------------------------------------------------+
 ```
 
 ---
@@ -235,6 +253,12 @@ Selisih Target   = SUM(INCOME) - SUM(TARGET)
 Pendapatan/Hari  = SUM(INCOME) / 20
 Okupansi %       = AVG(PERSENTASE OKUPANSI)
 Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing)  // blend by Bulan
+
+--- Questionaire (long) ---
+Responden        = COUNT_DISTINCT(response_id)
+Rata Skor        = AVG(score)
+Skor %           = AVG((score - scale_min)/(scale_max - scale_min))
+Bln              = TODATE(PARSE_DATE("%m/%d/%y", visit_date), "MONTH")
 ```
 
 ---
@@ -264,3 +288,4 @@ Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing) 
 - `USIA=127` dan `#REF!` harus dibersihkan (langkah §4).
 - Attrition hanya sampai Mar 2024 → tren terbatas sampai data diupdate.
 - INCOME/MARGIN kosong → metrik sales baru bermakna setelah income diisi.
+- Respons baru masuk lewat app, bukan sheet → wajib Export Looker agar P6 sinkron.
