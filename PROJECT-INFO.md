@@ -87,7 +87,7 @@ app/
   Filament/Resources/ QuestionGroupResource, QuestionResource,
     QuestionnaireResource, ResponseResource, UserResource, RoleResource
   Filament/Widgets/ StatsOverview, ResponsesPerMonthChart,
-    ReturnIntentChart, LowestCriteriaTable
+    OptionDistributionChart, LowestCriteriaTable
   Services/ QuestionnaireQuestionResolver
   Actions/ PublishQuestionnaire
   Livewire/ PublicQuestionnaireWizard (komponen Filament Wizard)
@@ -144,8 +144,8 @@ tests/ Feature, Unit
 | label | varchar(255) | No | - | |
 | help_text | text | Yes | null | |
 | type | enum(rating,text,textarea,select,radio,date,number) | No | - | |
-| scale_min | tinyint | Yes | 1 | Untuk rating |
-| scale_max | tinyint | Yes | 7 | Untuk rating |
+| scale_min | tinyint | Yes | 1 | Untuk rating (dinamis 0..N) |
+| scale_max | tinyint | Yes | 7 | Untuk rating (dinamis bisa >7) |
 | options | json | Yes | null | Untuk select/radio |
 | is_required | boolean | No | false | |
 | sort | int | No | 0 | Index |
@@ -242,7 +242,7 @@ tests/ Feature, Unit
 
 > UNIQUE (`response_id`, `question_id`) — idempotent autosave upsert.
 
-> Agregasi: hanya `rating` dihitung; `radio` = distribusi; tipe lain & nilai kosong dilewati.
+> Agregasi: hanya `rating` dihitung; `radio` = distribusi; tipe lain & nilai kosong dilewati. Rating dihitung ternormalisasi (Skor %) untuk perbandingan lintas soal.
 
 ### 6.9 `roles` (Spatie)
 
@@ -406,6 +406,8 @@ users *───* roles                      [model_has_roles]
 | Produk | Keragaman Permainan Edukasi, Citarasa Katering | rating 1–7 |
 | Kepuasan | Niat Kembali | radio (YA/BELUM TAU/TIDAK) |
 | Umum | (kosong) | untuk soal lepas |
+
+> Seeder hanya sampel; skala & opsi **dinamis** (skala min–max bisa 0..N, opsi bebas).
 
 ---
 

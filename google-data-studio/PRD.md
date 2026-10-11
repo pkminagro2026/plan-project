@@ -1,6 +1,6 @@
 # FULL PREVIEW PLAN — Dashboard HC INAGRO 2026 (Looker Studio)
 
-> Status: **RENCANA (belum dieksekusi)**. Dokumen ini = preview lengkap yang nanti dipecah jadi file `PRD.md`, `wireframes.md`, `rumus.md`.
+> Status: **DIEKSEKUSI**. Dokumen ini = preview lengkap; dipecah menjadi `PRD.md`, `wireframes.md`, `rumus.md`.
 
 ---
 
@@ -12,13 +12,13 @@ Membangun **1 dashboard Looker Studio** dari 1 spreadsheet Google (6 tab) untuk 
 ---
 
 ## 2. Inventaris Sumber Data
-Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
+Spreadsheet ID: `1701vbfQix-Yq5MivmNiAa8clfFBwQ1rdWUckioBP-F8`
 
 **6 tab (urutan tetap, jangan digeser):** GOOGLE RIVIEW · QUESTIONNAIRE (long template) · TRAINING RECORD · BTK TO SALES · DATA ATTRITION · DATA TENAGA KERJA.
 
 | Domain | Sheet (gid) | Kolom inti | Kondisi saat init |
 |---|---|---|---|
-| Demografi | DATA TENAGA KERJA (`1978650831`) | NIK, NAMA, DEPARTEMEN, DIVISI, POSISI, JK, MARITAL, STATUS, PENDIDIKAN, TGL LAHIR, TGL JOIN | NAMA/TGL LAHIR kosong (template); USIA=127 rusak; ada `#REF!` |
+| Demografi | DATA TENAGA KERJA (`1978650831`) | NIK, NAMA, DEPARTEMEN, DIVISI, POSISI, JK, MARITAL, STATUS, PENDIDIKAN, TGL LAHIR, TGL JOIN | NAMA/TGL LAHIR kosong (template); USIA=127 masih ada; `#REF!` sudah dibersihkan |
 | Attrition | DATA ATTRITION (`324423395`) | Bulan, Existing, Resign, Voluntary, Involuntary, Kary. Baru | 15 baris (2023–Mar 2024) |
 | Training | TRAINING RECORD (`1229589266`) | NIK, NAMA, JABATAN, STATUS, DIVISI, DEPARTEMEN, NAMA TRAINING, TGL, JAM, PRE/POST/N-Gain | NAMA & DEPARTEMEN kosong; pre/post ~19 baris |
 | Review | GOOGLE RIVIEW (`791906249`) | NO, NAMA, TANGGAL, RATING | Lengkap (5★160, 4★34, 3★5, 2★4, 1★11) |
@@ -45,8 +45,8 @@ Spreadsheet ID: `1U7012E0_HNmzVHipxTDKvYJU4N91JCNdeol2_LBRC7c`
 | % Achievement | `SUM(INCOME)/SUM(TARGET)` | BTK |
 | % Okupansi | `AVG(PERSENTASE OKUPANSI)` | BTK |
 | Responden | `COUNT_DISTINCT(response_id)` | Questionaire (long) |
-| Rata Skor | `AVG(score)` | Questionaire (long) |
-| Skor % | `AVG((score − scale_min)/(scale_max − scale_min))` | Questionaire (long) |
+| Rata Skor % | `AVG((score − scale_min)/(scale_max − scale_min))` | Questionaire (long) |
+| Skor % (metrik utama) | `AVG((score − scale_min)/(scale_max − scale_min))` | Questionaire (long) |
 
 > **MARGIN dihapus total** dari semua halaman.
 
@@ -59,7 +59,7 @@ Database = spreadsheet ini sendiri; **6 tab urutan tetap** (lihat §2), header *
 **Perbaikan format (hanya nilai/tipe, bukan kolom):**
 - Tanggal → `yyyy-mm-dd`; kolom bulan → `yyyy-mm`.
 - Angka → numerik: desimal titik, tanpa pemisah ribuan; persen → angka (mis. `"14,99%"` → `0.1499`).
-- Bersihkan nilai rusak: `USIA=127`, `#REF!`.
+- Bersihkan nilai rusak: `#REF!` (selesai); `USIA=127` masih ada.
 - `MARGIN` & kolom kosong **diabaikan di Looker, tidak dihapus**.
 
 **Upload append (perbaruan tab):** file ber-header identik → `File ▸ Import ▸ Upload ▸ Append rows to current sheet`; boleh parsial (isi tab yang diperlukan saja); cek kolom/posisi tab tidak bergeser; Looker → Refresh.
@@ -77,7 +77,7 @@ Database = spreadsheet ini sendiri; **6 tab urutan tetap** (lihat §2), header *
 - **P3 Training:** kartu jam/peserta/N-Gain, bar peserta per training, bar jam per divisi, line bulanan, tabel peserta.
 - **P4 Review:** avg rating, total ulasan, distribusi bintang, tren bulanan, tabel ulasan.
 - **P5 BTK/Sales:** kartu Income/Target/%Achieve/Selisih Target/Pemasukan per Karyawan/Pendapatan per Hari; bar Income vs Target vs Selisih; line okupansi + target 70%; donut anak/guru/dewasa; bar okupansi per wahana & per room.
-- **P6 Questionaire:** scorecards Responden/Rata Skor/opsi teratas; bar rata skor per soal (+target 6,0); donut opsi radio; line tren per bulan; tabel detail; filter Kuesioner/Kategori/Tanggal.
+- **P6 Questionaire:** scorecards Responden/Rata Skor/opsi teratas; bar **Skor % per soal** (sort naik); **donut distribusi opsi per soal**; line tren per bulan; tabel detail; filter Kuesioner/Kategori/Tanggal.
 **Out of scope:** tab COMPENSATION/VALUE/dll, MARGIN.
 
 **Strategi Blend (Looker):**
@@ -182,14 +182,14 @@ Database = spreadsheet ini sendiri; **6 tab urutan tetap** (lihat §2), header *
 ```
 ======= P6 · QUESTIONAIRE / KEPUASAN PENGUNJUNG =======   [Kuesioner▾][Kategori▾][Tgl▾]
 +---------+----------+----------------+-----------------+
-|Responden| Rata Skor| Opsi Teratas   | Skor Terendah   |
-|  352    |  5,79    | BELUM TAU 51.6%| Toilet 5,37     |
+|Responden| Rata Skor %| Opsi Teratas   | Skor Terendah   |
+|  353    |  5,79    | BELUM TAU 51.6%| Toilet 5,37     |
 +---------+----------+----------------+-----------------+
-| Bar: Rata Skor per Soal (sort naik) + target 6,0 | Donut Opsi Radio |
+| Bar: Rata Skor per Soal (sort naik)              | Donut Distribusi Opsi |
 +--------------------------------------------------+------------------+
 | Line: Tren Rata Skor per Bulan                                         |
 +------------------------------------------------------------------------+
-| TABEL: ResponseID | Nama | Sekolah | Soal | Skor/Opsi   | Kuesioner     |
+| TABEL: ResponseID | Nama | Sekolah | Soal | Tipe | Skala | Nilai/Opsi | Kuesioner |
 +------------------------------------------------------------------------+
 ```
 
@@ -206,13 +206,13 @@ Gender           = CASE WHEN JENIS KELAMIN="L" THEN "Laki-laki" ELSE "Perempuan"
 Turnover Rate    = SUM(Jumlah Karyawan Resign) / AVG(Jumlah karyawan Existing)
 Voluntary Rate   = SUM(Jumlah Voluntary Resign) / AVG(Jumlah karyawan Existing)
 Target Turnover  = 0.10
-Bulan (date)     = PARSE_DATE("%Y-%m-%d", Bulan)
+Bulan (date)     = TODATE(Bulan, "MONTH")
 
 --- Training ---
 Total Jam        = SUM(TOTAL JAM TRAINING (JAM))
 Peserta Unik     = COUNT_DISTINCT(NIK)
 Rata N-Gain      = AVG(N GAIN SCORE)
-Bulan Training   = TODATE(PARSE_DATE("%Y-%m-%d", TANGGAL), "MONTH")
+Bulan Training   = TODATE(TANGGAL, "MONTH")
 
 --- Review ---
 Avg Rating       = AVG(RATING)
@@ -233,7 +233,8 @@ Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing) 
 Responden        = COUNT_DISTINCT(response_id)
 Rata Skor        = AVG(score)
 Skor %           = AVG((score - scale_min)/(scale_max - scale_min))
-Bln              = TODATE(PARSE_DATE("%Y-%m-%d", visit_date), "MONTH")
+Skala            = CONCAT(CAST(scale_min AS TEXT), "–", CAST(scale_max AS TEXT))
+Bln              = TODATE(visit_date, "MONTH")
 ```
 
 ---
@@ -252,6 +253,7 @@ Bln              = TODATE(PARSE_DATE("%Y-%m-%d", visit_date), "MONTH")
 - [ ] Angka KPI cocok dengan hitung manual pada data sampel.
 - [ ] Tidak ada label/teks bertumpuk; layout rapi di desktop & mobile.
 - [ ] MARGIN tidak ada; "Surplus" digantikan Selisih Target + Pemasukan/Karyawan.
+- [ ] Lintas soal dinilai via Skor %; distribusi opsi muncul untuk semua soal radio/select.
 
 ## 11. Deliverable (dibuat saat eksekusi)
 - `PRD.md` — dokumen PRD (§1–§10).
@@ -260,7 +262,7 @@ Bln              = TODATE(PARSE_DATE("%Y-%m-%d", visit_date), "MONTH")
 
 ## 12. Risiko / Loose Ends
 - Nama & TGL LAHIR kosong (template) → tabel nama & usia baru bermakna setelah data terisi.
-- `USIA=127` dan `#REF!` harus dibersihkan (langkah §4).
+- `#REF!` sudah dibersihkan; `USIA=127` masih ada (langkah §4).
 - Attrition hanya sampai Mar 2024 → tren terbatas sampai data diupdate.
 - INCOME/MARGIN kosong → metrik sales baru bermakna setelah income diisi.
 - Respons baru masuk lewat app, bukan sheet → wajib Export Looker agar P6 sinkron.

@@ -12,13 +12,13 @@ Gender           = CASE WHEN JENIS KELAMIN="L" THEN "Laki-laki" ELSE "Perempuan"
 Turnover Rate    = SUM(Jumlah Karyawan Resign) / AVG(Jumlah karyawan Existing)
 Voluntary Rate   = SUM(Jumlah Voluntary Resign) / AVG(Jumlah karyawan Existing)
 Target Turnover  = 0.10
-Bulan (date)     = PARSE_DATE("%Y-%m-%d", Bulan)
+Bulan (date)     = TODATE(Bulan, "MONTH")
 
 --- Training ---
 Total Jam        = SUM(TOTAL JAM TRAINING (JAM))
 Peserta Unik     = COUNT_DISTINCT(NIK)
 Rata N-Gain      = AVG(N GAIN SCORE)
-Bulan Training   = TODATE(PARSE_DATE("%Y-%m-%d", TANGGAL), "MONTH")
+Bulan Training   = TODATE(TANGGAL, "MONTH")
 
 --- Review ---
 Avg Rating       = AVG(RATING)
@@ -74,6 +74,8 @@ NO FMT(number; unik nanti) · NAMA FMT(trim) · TANGGAL FMT(date) · RATING numb
 | 14 | scale_min | Number |
 | 15 | scale_max | Number |
 
+> `response_id` unik per responden (`r1`…`r353`); `respondent_name` = `Responden Historis #n`; `respondent_school` = `-`.
+
 **Tab 3 · TRAINING RECORD**
 ```
 NIK key · NAMA PESERTA TRAINING · JABATAN · STATUS · DIVISI · " DEPARTEMEN " (apa adanya) · NAMA TRAINING · TANGGAL AWAL PELAKSANAAN FMT(date) · NAMA PEMATERI TRAINING · TOTAL JAM TRAINING (JAM) FMT(number) · PRE TEST FMT(number) · POST TEST FMT(number) · POST - PRE FMT(number) · SCORE IDEAL FMT(number) · N GAIN SCORE FMT(number) · kolom 16–29 ABAIKAN
@@ -91,7 +93,7 @@ Bulan FMT(date yyyy-mm) · Jumlah karyawan Existing · Jumlah Karyawan Resign ·
 
 **Tab 6 · DATA TENAGA KERJA**
 ```
-NIK key · NO. KTP · NO. KK · NAMA · INISIAL · TGL JOIN FMT(date) · GRUP ABSEN · COMPANY · DEPARTEMEN · SECTION · DIVISI · POSISI · JABATAN · DESA · TPT LAHIR · TGL LAHIR FMT(date) · ALAMAT · NO HP teks · EMERGENCY CONTACT · EMAIL · AGAMA · JENIS KELAMIN · MARITAL STATUS · MOTHER NAME · BLOOD TYPE · STATUS KARYAWAN · KONTRAK KE FMT(number) · PKWT PERTAMA/AWAL/AKHIR FMT(date) · PENDIDIKAN (KHS) · PENDIDIKAN · SISA KONTRAK · MASA KERJA FMT(number,127) · USIA FMT(number,127) · (kosong) ABAIKAN · (kosong/#REF!) ABAIKAN
+NIK key · NO. KTP · NO. KK · NAMA · INISIAL · TGL JOIN FMT(date) · GRUP ABSEN · COMPANY · DEPARTEMEN · SECTION · DIVISI · POSISI · JABATAN · DESA · TPT LAHIR · TGL LAHIR FMT(date) · ALAMAT · NO HP teks · EMERGENCY CONTACT · EMAIL · AGAMA · JENIS KELAMIN · MARITAL STATUS · MOTHER NAME · BLOOD TYPE · STATUS KARYAWAN · KONTRAK KE FMT(number) · PKWT PERTAMA/AWAL/AKHIR FMT(date) · PENDIDIKAN (KHS) · PENDIDIKAN · SISA KONTRAK · MASA KERJA FMT(number,127) · USIA FMT(number,127) · (kosong) ABAIKAN · (kosong) ABAIKAN
 ```
 
 ---
@@ -128,5 +130,8 @@ Okupansi %         = AVG(PERSENTASE OKUPANSI)
 Responden          = COUNT_DISTINCT(response_id)
 Rata Skor          = AVG(score)
 Skor %             = AVG((score - scale_min)/(scale_max - scale_min))
-Bln                = TODATE(PARSE_DATE("%Y-%m-%d", visit_date), "MONTH")
+Skala              = CONCAT(CAST(scale_min AS TEXT), "–", CAST(scale_max AS TEXT))
+Bln                = TODATE(visit_date, "MONTH")
 ```
+
+> `Skor %` = metrik utama lintas soal (0–100%); **tanpa target**.

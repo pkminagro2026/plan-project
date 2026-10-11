@@ -42,14 +42,14 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Kuesio |  |          | |         | | +12 draft    |      |
 | Respon |  +----------+ +---------+ +-------------+       |
 | User   |  +---------------------+ +------------------+  |
-| Role   |  | Rata-rata Skor 5.9  | | Niat Kembali     |  |
+| Role   |  | Skor %              | | Distribusi Opsi  |  |
 |        |  | [##########----]    | | YA    170 (48%)  |  |
 |        |  +---------------------+ | BLM   182 (52%)  |  |
 |        |  | Respons / Bulan     | | TDK     1 (0%)   |  |
 |        |  |  # ## ### ## #      | +------------------+  |
 |        |  |  F M A M J J A S O  |                       |
 |        |  +---------------------+                       |
-|        |  Kriteria Terendah: 1.Toilet 5.37 2.Katering 5.52|
+|        |  Soal Terendah (Skor %): 1.Toilet 2.Katering        |
 +--------+-----------------------------------------------+
 ```
 
@@ -113,7 +113,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Tipe*    (o)Rating ( )Text ( )Textarea ( )Select          |
 |          ( )Radio ( )Date ( )Number                       |
 |                                                          |
-| -- Rating --  Skala min[1] max[7]  Label 1..7             |
+| -- Rating --  Skala min[0] max[7] (dinamis)  Label sesuai skala|
 | -- Select/Radio -- Opsi: [ ..... ] [x] (+ tambah)         |
 |                                                          |
 | [x] Wajib dijawab                                        |
@@ -296,7 +296,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 
 - Tipe soal = widget render di dalam step; bukan step tersendiri.
 - Next/Prev → autosave. Required gagal → field merah, nilai lain tetap tersimpan.
-- Skala `rating` = radio button 1–x; `radio` kategorikal (mis. Niat Kembali) = pilihan teks.
+- Skala `rating` = radio button min..max (bisa 0, >7); `radio` kategorikal (mis. Niat Kembali) = pilihan teks.
+- Widget `rating` merender skala min..max soal (contoh `(1)…(7)` hanya ilustrasi).
 
 ### F3. Review
 
@@ -325,10 +326,10 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 ```text
 +----------------------------------------------------------------------+
 | Respons                                                              |
-| Filter: [Kuesioner v][Periode v][Sekolah..][Status v][Niat v][Reset]  |
+| Filter: [Kuesioner v][Periode v][Sekolah..][Status v][Opsi v][Reset]  |
 | [ Export CSV ]   [ Export Looker ]                                    |
 |                                                                      |
-| ID  | Nama  | Sekolah | Tgl      | Avg  | Niat | Status        | Waktu |
+| ID  | Nama  | Sekolah | Tgl      | Avg  | Opsi | Status        | Waktu |
 | 351 | Ani   | SMPN 1  |12/10/24  | 6.14 | YA   | (v)submitted  | ...   |
 | 352 | Budi  | SMAN 2  |12/10/24  | 5.43 | BLM  | [!]draft      | ...   |
 +----------------------------------------------------------------------+
@@ -345,7 +346,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Fasilitas 5.67: Toilet 5 | Meeting 6 | Wara 6
 | Pelayanan 6.50: Sales 6 | Tour 7
 | Produk    5.50: Permainan 5 | Katering 6
-| Kepuasan  -   : Niat = YA
+| Kepuasan  -   : Opsi = YA
 | [ Kembali ] [ Export baris ini ]
 ```
 

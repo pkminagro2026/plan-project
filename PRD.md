@@ -143,10 +143,10 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Field | question_group_id (nullable FK), label (required), help_text (nullable), type (enum), scale_min/scale_max (default 1/7), options (json), is_required, sort, is_active |
+| Field | question_group_id (nullable FK), label (required), help_text (nullable), type (enum), scale_min/scale_max (default 1/7, dinamis 0..N bisa >7), options (json), is_required, sort, is_active |
 | Tipe | rating, text, textarea, select, radio, date, number |
 | Validasi | rating integer min..max; text max 255; textarea max 2000; select/radio in(options); date Y-m-d; number numeric |
-| Render | Tipe menentukan widget di dalam step kategori (bukan step tersendiri): `rating` = radio skala 1–x (numerik); `radio` = pilihan kategorikal berlabel teks; tipe lain reserved (future) |
+| Render | Tipe menentukan widget di dalam step kategori (bukan step tersendiri): `rating` = radio skala min–max soal (numerik); `radio` = pilihan kategorikal berlabel teks; tipe lain reserved (future) |
 | MVP | Tipe diimplementasikan: `rating`, `radio`; lainnya arsitektur saja |
 | Edge case | Ubah tipe soal yang dipakai kuesioner published dilarang untuk snapshot |
 | Acceptance | Soal rating menampilkan 1..7 + label makna |
@@ -184,7 +184,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Aspek | Detail |
 |---|---|
 | Tabel | Default draft + submitted dengan badge status |
-| Kolom | ID, Nama, Sekolah, Tgl Kunjungan, Rata-rata, Niat Kembali, Status, Waktu Submit |
+| Kolom | ID, Nama, Sekolah, Tgl Kunjungan, Rata-rata (Skor %), Opsi terpilih, Status, Waktu Submit |
 | Filter | Kuesioner, periode, sekolah, status, niat kembali, rentang avg |
 | Aksi | View (per kategori), export CSV via `ExportAction` Filament (wide format = kolom asli), soft delete, restore, force delete (super admin) |
 | Aturan | Export mengikuti filter aktif; rata-rata hanya dari `rating`, kosong dilewati |
@@ -194,7 +194,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Widget | Jumlah Pertanyaan; Jumlah Kategori; Jumlah Responded (submitted; draft dipisah); Rata-rata Skor (dari `rating`); Breakdown Niat Kembali (`radio`); Chart Respons/Bulan; Kriteria Skor Terendah (dari `rating`); Trend completion |
+| Widget | Jumlah Pertanyaan; Jumlah Kategori; Jumlah Responded (submitted; draft dipisah); Rata-rata Skor % (dari `rating`); Distribusi opsi per soal (`radio`/`select`); Chart Respons/Bulan; Soal Terendah berdasarkan Skor % (dari `rating`); Trend completion |
 | Filter | Periode & kuesioner |
 | Acceptance | Angka konsisten dengan tabel respons |
 
@@ -246,7 +246,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Kode | Aturan |
 |---|---|
-| BR1 | Skala rating 1–7; label 1=Sangat Tidak Puas .. 7=Sangat Puas |
+| BR1 | Skala rating dinamis min–max (mis. 0–10, 1–5, 1–7); label makna per skala |
 | BR2 | Identitas kuesioner (Nama, Sekolah, Tgl Kunjungan) wajib di form publik; kolom DB nullable (untuk import historis) |
 | BR3 | Soal boleh tanpa kategori → section "Umum" (selalu di akhir) |
 | BR4 | Snapshot saat publish |

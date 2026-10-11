@@ -85,13 +85,13 @@
 ```
 ======= P6 · QUESTIONAIRE / KEPUASAN PENGUNJUNG =======   [Kuesioner▾][Kategori▾][Tgl▾]
 +---------+----------+----------------+-----------------+
-|Responden| Rata Skor| Opsi Teratas   | Skor Terendah   |
-|  352    |  5,79    | BELUM TAU 51.6%| Toilet 5,37     |
+|Responden| Rata Skor %| Opsi Teratas   | Skor Terendah   |
+|  353    |  5,79    | BELUM TAU 51.6%| Toilet 5,37     |
 +---------+----------+----------------+-----------------+
-| Bar: Rata Skor per Soal (sort naik) + target 6,0 | Donut Opsi Radio |
+| Bar: Rata Skor per Soal (sort naik)              | Donut Distribusi Opsi |
 +--------------------------------------------------+------------------+
 | Line: Tren Rata Skor per Bulan                                         |
 +------------------------------------------------------------------------+
-| TABEL: ResponseID | Nama | Sekolah | Soal | Skor/Opsi   | Kuesioner     |
+| TABEL: ResponseID | Nama | Sekolah | Soal | Tipe | Skala | Nilai/Opsi | Kuesioner |
 +------------------------------------------------------------------------+
 ```
