@@ -7,10 +7,10 @@
 | Komponen | Versi/Keterangan |
 |---|---|
 | PHP | 8.3 |
-| Laravel | 12.x |
+| Laravel | 13.x |
 | Filament | 5.x (Livewire 3, Tailwind, Alpine) |
 | Database | MySQL 8.0 (utf8mb4_unicode_ci) |
-| Node | 20 + Vite |
+| Node | 22 + Vite |
 | Redis | Opsional (queue/cache) |
 
 ---
@@ -22,9 +22,8 @@
 | filament/filament ^5 | Panel admin, resource, widget, ExportAction (CSV) |
 | bezhansalleh/filament-shield | UI permission + role (RBAC) |
 | spatie/laravel-permission | Engine role/permission di DB |
-| endroid/qr-code | Generate QR PNG/SVG lokal |
 
-> Catatan: export CSV memakai `ExportAction` bawaan Filament; slug via `Str::slug`. Tidak ada paket mail/verification (fitur email tidak dipakai).
+> Catatan: export CSV memakai `ExportAction` bawaan Filament; QR code memakai bawaan Filament (`chillerlan/php-qrcode`); slug via `Str::slug`. Tidak ada paket mail/verification (fitur email tidak dipakai).
 
 ### 2.1 Pemetaan Filament (Default vs Paket vs Custom)
 
@@ -40,7 +39,7 @@
 | Wizard form publik | Komponen Filament `Wizard` (default) + halaman guest (custom) |
 | Change password | Filament `Action` (custom kecil) |
 | RBAC | filament-shield + spatie (paket) |
-| QR | endroid/qr-code (paket) |
+| QR | Bawaan Filament (chillerlan/php-qrcode) |
 | Autosave/resume, snapshot, resolver, rata-rata, import | Custom logic |
 
 ---
@@ -53,8 +52,7 @@ cd project-pkm
 composer require filament/filament:"^5"
 php artisan filament:install --panels
 composer require bezhansalleh/filament-shield
-php artisan shield:install
-composer require endroid/qr-code
+php artisan shield:install admin
 npm install && npm run build
 ```
 
@@ -65,13 +63,13 @@ npm install && npm run build
 ```dotenv
 APP_NAME="Website Quisioner"
 APP_ENV=local
-APP_URL=http://localhost
+APP_URL=http://localhost:8000
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=quisioner
+DB_DATABASE=inagro_kuesioner
 DB_USERNAME=root
-DB_PASSWORD=
+DB_PASSWORD=root
 QUEUE_CONNECTION=database
 # MAIL TIDAK DIPERLUKAN (tanpa forgot/reset/verifikasi email)
 ```
@@ -88,7 +86,8 @@ app/
     QuestionnaireResource, ResponseResource, UserResource, RoleResource
   Filament/Widgets/ StatsOverview, ResponsesPerMonthChart,
     OptionDistributionChart, LowestCriteriaTable
-  Services/ QuestionnaireQuestionResolver
+  Services/ QuestionnaireQuestionResolver, LookerLongExport, WideResponseExport
+  Support/ ScoreNormalizer
   Actions/ PublishQuestionnaire
   Livewire/ PublicQuestionnaireWizard (komponen Filament Wizard)
   Imports/ HistoricalQuestionnaireImport
@@ -309,7 +308,7 @@ tests/ Feature, Unit
 | job_batches | Job batching |
 | failed_jobs | Job gagal |
 
-> `password_reset_tokens` tidak dipakai (fitur reset password dihapus).
+> `password_reset_tokens` dibuat bawaan tetapi tidak dipakai (fitur reset password dihapus).
 
 ---
 

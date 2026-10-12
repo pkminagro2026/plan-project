@@ -5,7 +5,7 @@
 | Versi | 1.0 (Final) |
 | Tanggal | 2026-10-07 |
 | Status | Siap implementasi |
-| Stack | Laravel 12 + Filament v5 + MySQL 8 |
+| Stack | Laravel 13 + Filament v5 + MySQL 8 |
 
 ---
 
