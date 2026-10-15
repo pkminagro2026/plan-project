@@ -233,6 +233,7 @@ Pemasukan/Karyawan = SUM(INCOME) / AVG(DATA ATTRITION.Jumlah karyawan Existing) 
 Responden        = COUNT_DISTINCT(response_id)
 Rata Skor        = AVG(score)
 Skor %           = AVG((score - scale_min)/(scale_max - scale_min))
+Jumlah Jawaban   = COUNT(response_id)
 Skala            = CONCAT(CAST(scale_min AS TEXT), "–", CAST(scale_max AS TEXT))
 Bln              = TODATE(visit_date, "MONTH")
 ```
