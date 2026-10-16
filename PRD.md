@@ -84,7 +84,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 |---|---|
 | Super Admin | Akses penuh, kelola role/permission/user & password |
 | Admin | Kelola kategori, soal, kuesioner, respons, export, update password user |
-| Operator | Lihat/input respons, export |
+| Operator | Lihat & koreksi identitas respons (Nama/Sekolah), export |
 | Viewer | Read-only dashboard & respons |
 
 > Akses tiap aksi (termasuk update password user) ditentukan permission.
@@ -145,9 +145,9 @@ SSO, integrasi eksternal, API pihak ketiga.
 |---|---|
 | Field | question_group_id (nullable FK), label (required), help_text (nullable), type (enum), scale_min/scale_max (default 1/7, dinamis 0..N bisa >7), options (json), is_required, sort, is_active |
 | Tipe | rating, text, textarea, select, radio, date, number |
-| Validasi | rating integer min..max; text max 255; textarea max 2000; select/radio in(options); date Y-m-d; number numeric |
+| Validasi | rating integer min..max; text max 255; textarea max 2000; select/radio in(options); date Y-m-d; number numeric; rating scale_min < scale_max |
 | Render | Tipe menentukan widget di dalam step kategori (bukan step tersendiri): `rating` = radio skala min–max soal (numerik); `radio` = pilihan kategorikal berlabel teks; tipe lain reserved (future) |
-| MVP | Tipe diimplementasikan: `rating`, `radio`; lainnya arsitektur saja |
+| MVP | Tipe diimplementasikan: `rating`, `radio`; lainnya arsitektur saja. Form hanya menampilkan pilihan `rating` & `radio`. |
 | Edge case | Ubah tipe soal yang dipakai kuesioner published dilarang untuk snapshot |
 | Acceptance | Soal rating menampilkan 1..7 + label makna |
 
@@ -155,10 +155,10 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Field | title (required), slug, public_token (uuid auto), description, selection_mode (questions/groups/custom), layout (default wizard), status (draft/published/closed), opens_at, closes_at, allow_anonymous, is_frozen, frozen_at, created_by, identity_fields |
+| Field | title (required), slug, public_token (uuid auto), description, selection_mode (questions/groups/custom), layout (fixed wizard; tidak diekspos di form), status (draft/published/closed), opens_at, closes_at, allow_anonymous, is_frozen, frozen_at, created_by, identity_fields |
 | Identitas | Field identitas (Nama, Sekolah, Tgl Kunjungan) level kuesioner, fixed wajib; disimpan di `responses` |
 | Mode | `questions`=soal individual saja; `groups`=soal kategori terpilih; `custom`=union(kategori, soal individual), dedup, urut group.sort lalu question.sort |
-| Aksi | Simpan draft (resep); publish → resolusi + materialize + `is_frozen=1` + `status=published`; generate QR (PNG/SVG) + copy link; tutup manual |
+| Aksi | Simpan draft (resep); publish → resolusi + materialize + `is_frozen=1` + `status=published`; generate QR (SVG) + tampilkan link publik; tutup manual |
 | Aturan | Publik bila `status=published` DAN `now` in [opens_at, closes_at] |
 | Edge case | Master soal diubah setelah publish → kuesioner tidak berubah (frozen); publish tanpa soal ditolak; `opens_at >= closes_at` ditolak |
 | Acceptance | QR scan membuka `/q/{token}`; di luar tenggat → "Ditutup" |
@@ -186,7 +186,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Tabel | Default draft + submitted dengan badge status |
 | Kolom | ID, Nama, Sekolah, Tgl Kunjungan, Rata-rata (Skor %), Opsi terpilih, Status, Waktu Submit |
 | Filter | Kuesioner, periode, sekolah, status, niat kembali, rentang avg |
-| Aksi | View (per kategori), export CSV via `ExportAction` Filament (wide format = kolom asli), soft delete, restore, force delete (super admin) |
+| Aksi | View (per kategori), Edit terbatas (Nama & Sekolah; field integritas — Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan — terkunci), export CSV via `ExportAction` Filament (wide format = kolom asli), soft delete, restore, force delete (super admin). Create respons dihapus; respons hanya dari wizard publik. |
 | Aturan | Export mengikuti filter aktif; rata-rata hanya dari `rating`, kosong dilewati |
 | Acceptance | CSV identik struktur kolom sheet asli |
 

@@ -54,6 +54,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 ```
 
 - **State**: loading (skeleton) | empty ("Belum ada respons").
+- **Filter**: berada di dalam widget chart (ikon filter), bukan bar filter di atas.
 
 ---
 
@@ -110,8 +111,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Kategori [ Fasilitas          v ] (opsional)              |
 | Help     [____________________________________]           |
 |                                                          |
-| Tipe*    (o)Rating ( )Text ( )Textarea ( )Select          |
-|          ( )Radio ( )Date ( )Number                       |
+| Tipe*    (o)Rating ( )Radio                               |
 |                                                          |
 | -- Rating --  Skala min[0] max[7] (dinamis)  Label sesuai skala|
 | -- Select/Radio -- Opsi: [ ..... ] [x] (+ tambah)         |
@@ -120,6 +120,9 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Urutan [10]  Aktif [x]      [ SIMPAN ] [ BATAL ]          |
 +----------------------------------------------------------+
 ```
+
+- **Tipe**: hanya `Rating` & `Radio` tersedia (tipe lain arsitektur, tidak tampil di form).
+- **Skala rating**: divalidasi `min < max`.
 
 ---
 
@@ -220,7 +223,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 ```text
 +--------------------------------------------------+
 | QR +----------------+  https://app.id/q/a1b2c3d4 |
-|    | ## qr ## ## ## |  [PNG][SVG][Copy Link]     |
+|    | ## qr ## ## ## |  [SVG + link publik]       |
 |    +----------------+                            |
 +--------------------------------------------------+
 ```
@@ -350,6 +353,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | [ Kembali ] [ Export baris ini ]
 ```
 
+- **Tanpa Create**; **Edit terbatas**: Nama & Sekolah dapat diubah, field lain disabled (Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan).
+
 ---
 
 ## H. USER & ROLE
@@ -402,7 +407,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Kategori  | [x]  | [ ]    | [ ]    | [ ]    | [ ]     | [ ]      |
 | Soal      | [x]  | [ ]    | [ ]    | [ ]    | [ ]     | [ ]      |
 | Kuesioner | [x]  | [ ]    | [ ]    | [ ]    | [ ]     | [ ]      |
-| Respons   | [x]  | [x]    | [x]    | [ ]    | [ ]     | [ ]      |
+| Respons   | [x]  | [ ]    | [x]    | [ ]    | [ ]     | [ ]      |
 | User      | [ ]  | [ ]    | [ ]    | [ ]    | [ ]     | [ ]      |
 | Role      | [ ]  | [ ]    | [ ]    | [ ]    | [ ]     | [ ]      |
 |-----------------------------------------------------------------|
@@ -411,6 +416,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | [ SIMPAN ]                                                      |
 +-----------------------------------------------------------------+
 ```
+
+- Respons: Create dihapus; Update hanya Nama/Sekolah (field lain terkunci).
 
 ---
 

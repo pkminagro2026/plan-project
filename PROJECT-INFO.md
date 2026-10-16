@@ -30,7 +30,7 @@
 | Bagian | Implementasi |
 |---|---|
 | Login | Panel auth Filament (default) |
-| CRUD Kategori/Soal/Kuesioner/Respons/User | Resource + form/table Filament (default) |
+| CRUD Kategori/Soal/Kuesioner/User + kelola Respons (view, edit terbatas, delete) | Resource + form/table Filament (default) |
 | Satu entity Soal semua tipe | `Select` tipe + field kondisional (default) |
 | Dashboard | Widget StatsOverview/Chart/Table (default) |
 | Export CSV | `ExportAction` (default) |
@@ -47,12 +47,16 @@
 ## 3. Perintah Setup
 
 ```bash
-composer create-project laravel/laravel project-pkm
-cd project-pkm
+composer create-project laravel/laravel inagro-kuesioner
+cd inagro-kuesioner
 composer require filament/filament:"^5"
 php artisan filament:install --panels
 composer require bezhansalleh/filament-shield
 php artisan shield:install admin
+php artisan migrate
+php artisan shield:generate --all --panel=admin
+php artisan db:seed
+php artisan filament:assets
 npm install && npm run build
 ```
 
@@ -178,7 +182,7 @@ tests/ Feature, Unit
 | updated_at | timestamp | Yes | null | |
 | deleted_at | timestamp | Yes | null | SoftDeletes |
 
-> MVP implementasi: `layout` = `wizard`; `tabs`, `single` = arsitektur (tanpa implementasi).
+> MVP implementasi: `layout` = `wizard`; `tabs`, `single` = arsitektur (tanpa implementasi). Field `layout` tidak diekspos di form (fixed `wizard`).
 
 ### 6.5 `questionnaire_question_group`
 
@@ -373,10 +377,14 @@ users *───* roles                      [model_has_roles]
 
 | Route | Handler |
 |---|---|
+| `GET /` | Dashboard panel admin (Filament) |
+| `GET /login` | Login admin |
+| `GET /questionnaires`, `/responses`, dst | Resource panel admin (root) |
 | `GET /q/{token}` | PublicQuestionnaireWizard (intro + identitas + step + review) |
 | LIVEWIRE | autosave / next / prev / submit |
 
-- **Guard**: token valid, status published, `now` in [opens_at, closes_at], throttle, honeypot.
+- **Panel admin di root** (`/`) — bukan `/admin`.
+- **Guard publik**: token valid, status published, `now` in [opens_at, closes_at], throttle, honeypot.
 - Tidak ada route profile/forgot/reset password.
 
 ---
@@ -388,11 +396,12 @@ users *───* roles                      [model_has_roles]
 | Kategori | SA,A,O,V | SA,A | SA,A | SA,A | SA | SA | |
 | Soal | SA,A,O,V | SA,A | SA,A | SA,A | SA | SA | |
 | Kuesioner | SA,A,O,V | SA,A | SA,A | SA,A | SA | SA | publish (SA,A) |
-| Respons | SA,A,O,V | SA,A,O | SA,A,O | SA,A | SA,A | SA | export (SA,A,O) |
+| Respons | SA,A,O,V | — | SA,A,O | SA,A | SA,A | SA | export (SA,A,O) |
 | User | SA,A | SA,A | SA,A | SA,A | SA | SA | update_password_user (SA,A) |
 | Role | SA | SA | SA | SA | SA | SA | assign_role (SA) |
 
 > SA=Super Admin (bypass `Gate::before`), A=Admin, O=Operator, V=Viewer.
+> Respons: Create dihapus; Update terbatas Nama/Sekolah (field lain terkunci).
 
 ---
 
@@ -450,6 +459,7 @@ users *───* roles                      [model_has_roles]
 php artisan migrate --force
 php artisan shield:generate --all
 php artisan db:seed
+php artisan filament:assets
 php artisan optimize
 # Tanpa scheduler prune draft (draft tanpa batas waktu).
 ```
