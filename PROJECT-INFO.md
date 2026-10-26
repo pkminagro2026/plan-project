@@ -364,8 +364,8 @@ users *───* roles                      [model_has_roles]
 | Step | Aksi |
 |---|---|
 | 1 | `GET /q/{token}` → validasi (published & dalam rentang) → tampilkan Intro + Identitas (`identity_fields`) |
-| 2 | Buat/find `responses` by `draft_token`; `status=draft` |
-| 3 | Next/Prev: POST autosave → upsert `answers`, update `last_step`. Next: validasi required; gagal → simpan, tidak maju. Prev: simpan, mundur |
+| 2 | Find `responses` by `draft_token`; **buat saat interaksi pertama** (blur/pilih opsi/Next), `status=draft` |
+| 3 | Autosave saat field berubah (blur/pilih opsi) & Next → upsert `answers`. Next: validasi required; gagal → simpan, tidak maju. Prev: client-side (tanpa request) |
 | 4 | Submit → validasi semua required → `status=submitted`, `submitted_at=now()` |
 
 > Idempotent via UNIQUE (`response_id`, `question_id`).

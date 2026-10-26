@@ -167,10 +167,10 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Alur | Buka token → validasi → buat respons draft + draft_token → Intro + Identitas (opsional; step dilewati bila semua field hidden) → langkah sesuai mode (lihat Render mode) → review → submit |
+| Alur | Buka token → validasi → set draft_token (tanpa membuat respons) → Intro + Identitas (opsional; step dilewati bila semua field hidden) → langkah sesuai mode (lihat Render mode) → review → submit; draft dibuat saat interaksi pertama |
 | Render mode | `questions`=1 step flat (tanpa kategori); `groups`=1 step per kategori; `custom`=1 step per kategori + step "Umum" untuk soal individual |
 | Komponen | Form publik memakai komponen `Wizard` Filament di halaman Livewire publik |
-| Autosave | Setiap Next/Prev → upsert answers + update last_step |
+| Autosave | Saat field berubah (blur/pilih opsi) & Next → upsert answers; draft dibuat saat interaksi pertama (bukan saat membuka halaman) |
 | Validasi | Next memvalidasi required langkah; gagal → tetap simpan nilai terisi, tidak maju |
 | Submit | Validasi semua required server-side → `status=submitted` + `submitted_at` |
 | Resume | draft_token dapat lanjut lintas device; anti-duplikat per token |

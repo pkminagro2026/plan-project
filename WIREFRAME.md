@@ -250,6 +250,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 +--------------------------------------------------+
 ```
 
+> Draft dibuat saat interaksi pertama (blur/pilih opsi/Next); membuka halaman tidak membuat draft.
+
 ### F2a. Step — Mode "Custom / Mix"
 
 ```text
