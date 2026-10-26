@@ -146,8 +146,10 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Judul* [ Penilaian Kunjungan Q2 ]                               |
 | Mode soal: (o) Soal Only  ( ) Kategori  ( ) Custom / Mix        |
 |-----------------------------------------------------------------|
-| IDENTITAS KUESIONER (fixed wajib)                        |
-|  Nama [x]  Sekolah [x]  Tgl Kunjungan [x]  (terkunci)    |
+| IDENTITAS KUESIONER                                      |
+|  Nama          [Tampilkan x] [Wajib x]                   |
+|  Sekolah       [Tampilkan x] [Wajib x]                   |
+|  Tgl Kunjungan [Tampilkan x] [Wajib x]                   |
 |-----------------------------------------------------------------|
 | PILIH SOAL (tanpa kategori)                                     |
 |  [ cari soal.. v ]  [+ Tambah]                                  |
@@ -157,7 +159,6 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Terpilih: 3 soal (dalam 1 step flat)                            |
 |                                                                 |
 | Buka [ 2026-07-01 08:00 ]  Tutup [ 2026-07-31 23:59 ]           |
-| Publik anonim [ ]                                               |
 |                                                                 |
 | [ SIMPAN DRAFT ]        [ PUBLISH + QR ]                        |
 +-----------------------------------------------------------------+
@@ -170,8 +171,10 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Judul* [ Penilaian Kunjungan Q2 ]                               |
 | Mode soal: ( ) Soal Only  (o) Kategori  ( ) Custom / Mix        |
 |-----------------------------------------------------------------|
-| IDENTITAS KUESIONER (fixed wajib)                        |
-|  Nama [x]  Sekolah [x]  Tgl Kunjungan [x]  (terkunci)    |
+| IDENTITAS KUESIONER                                      |
+|  Nama          [Tampilkan x] [Wajib x]                   |
+|  Sekolah       [Tampilkan x] [Wajib x]                   |
+|  Tgl Kunjungan [Tampilkan x] [Wajib x]                   |
 |-----------------------------------------------------------------|
 | PILIH KATEGORI (centang = ambil semua soal di dalamnya)         |
 |  [x] v Fasilitas   (3)  -> [x]Toilet [x]Meeting [x]Wara          |
@@ -181,7 +184,6 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Terpilih: 6 soal / 3 kategori                                   |
 |                                                                 |
 | Buka [ 2026-07-01 08:00 ]  Tutup [ 2026-07-31 23:59 ]           |
-| Publik anonim [ ]                                               |
 |                                                                 |
 | [ SIMPAN DRAFT ]        [ PUBLISH + QR ]                        |
 +-----------------------------------------------------------------+
@@ -194,8 +196,10 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Judul* [ Penilaian Kunjungan Q2 ]                               |
 | Mode soal: ( ) Soal Only  ( ) Kategori  (o) Custom / Mix        |
 |-----------------------------------------------------------------|
-| IDENTITAS KUESIONER (fixed wajib)                        |
-|  Nama [x]  Sekolah [x]  Tgl Kunjungan [x]  (terkunci)    |
+| IDENTITAS KUESIONER                                      |
+|  Nama          [Tampilkan x] [Wajib x]                   |
+|  Sekolah       [Tampilkan x] [Wajib x]                   |
+|  Tgl Kunjungan [Tampilkan x] [Wajib x]                   |
 |-----------------------------------------------------------------|
 | KATEGORI (ambil borongan)                                       |
 |  [x] v Fasilitas   (3)  -> [x]Toilet [x]Meeting [x]Wara          |
@@ -209,7 +213,6 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | Terpilih: 5 soal (3 kategori + 2 individual)                    |
 |                                                                 |
 | Buka [ 2026-07-01 08:00 ]  Tutup [ 2026-07-31 23:59 ]           |
-| Publik anonim [ ]                                               |
 |                                                                 |
 | [ SIMPAN DRAFT ]        [ PUBLISH + QR ]                        |
 +-----------------------------------------------------------------+
@@ -241,7 +244,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 |  4 langkah, ±7 soal, ±2 menit                    |
 |                                                  |
 |  Nama*[____] Sekolah*[____] Tgl Kunjungan*[date] |
-|  (Sumber: identity_fields kuesioner)             |
+|  (Sumber: identity_fields; hidden/optional OK)   |
 |                                                  |
 |  [                    MULAI                  ]   |
 +--------------------------------------------------+

@@ -95,3 +95,5 @@
 | TABEL: ResponseID | Nama | Sekolah | Soal | Tipe | Skala | Nilai/Opsi | Kuesioner |
 +------------------------------------------------------------------------+
 ```
+
+> Nama/Sekolah dapat kosong; tren & filter Tanggal hanya memakai baris dengan `visit_date`.

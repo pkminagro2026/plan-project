@@ -77,7 +77,7 @@ Database = spreadsheet ini sendiri; **6 tab urutan tetap** (lihat §2), header *
 - **P3 Training:** kartu jam/peserta/N-Gain, bar peserta per training, bar jam per divisi, line bulanan, tabel peserta.
 - **P4 Review:** avg rating, total ulasan, distribusi bintang, tren bulanan, tabel ulasan.
 - **P5 BTK/Sales:** kartu Income/Target/%Achieve/Selisih Target/Pemasukan per Karyawan/Pendapatan per Hari; bar Income vs Target vs Selisih; line okupansi + target 70%; donut anak/guru/dewasa; bar okupansi per wahana & per room.
-- **P6 Questionaire:** scorecards Responden/Rata Skor/opsi teratas; bar **Skor % per soal** (sort naik); **donut distribusi opsi per soal**; line tren per bulan; tabel detail; filter Kuesioner/Kategori/Tanggal.
+- **P6 Questionaire:** scorecards Responden/Rata Skor/opsi teratas; bar **Skor % per soal** (sort naik); **donut distribusi opsi per soal**; line tren per bulan; tabel detail; filter Kuesioner/Kategori/Tanggal. Bila kuesioner menyembunyikan Tgl Kunjungan, baris tidak muncul di tren/filter Tanggal (`visit_date` kosong).
 **Out of scope:** tab COMPENSATION/VALUE/dll, MARGIN.
 
 **Strategi Blend (Looker):**
@@ -193,6 +193,8 @@ Database = spreadsheet ini sendiri; **6 tab urutan tetap** (lihat §2), header *
 +------------------------------------------------------------------------+
 ```
 
+> Nama/Sekolah dapat kosong; tren & filter Tanggal hanya memakai baris dengan `visit_date`.
+
 ---
 
 ## 8. Katalog Rumus Looker Studio (Calculated Fields)
@@ -235,7 +237,7 @@ Rata Skor        = AVG(score)
 Skor %           = AVG((score - scale_min)/(scale_max - scale_min))
 Jumlah Jawaban   = COUNT(response_id)
 Skala            = CONCAT(CAST(scale_min AS TEXT), "–", CAST(scale_max AS TEXT))
-Bln              = TODATE(visit_date, "MONTH")
+Bln              = TODATE(visit_date, "MONTH")   // baris tanpa visit_date tidak masuk tren
 ```
 
 ---
@@ -267,3 +269,4 @@ Bln              = TODATE(visit_date, "MONTH")
 - Attrition hanya sampai Mar 2024 → tren terbatas sampai data diupdate.
 - INCOME/MARGIN kosong → metrik sales baru bermakna setelah income diisi.
 - Respons baru masuk lewat app, bukan sheet → wajib Export Looker agar P6 sinkron.
+- Identitas kuesioner bisa di-hide → kolom Nama/Sekolah/Tgl di long template kosong; tren & filter Tanggal mengabaikan baris tanpa `visit_date` (metrik lain aman).

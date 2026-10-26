@@ -101,7 +101,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Snapshot | Pembekuan daftar soal saat publish |
 | Draft | Respons terisi sebagian (autosave) |
 | Submitted | Respons final |
-| Identitas | Metadata responden (Nama, Sekolah, Tgl Kunjungan) di level kuesioner, wajib, disimpan per respons |
+| Identitas | Metadata responden (Nama, Sekolah, Tgl Kunjungan) di level kuesioner; tiap field punya `enabled`/`required` (default tampil + wajib); disimpan per respons |
 
 ---
 
@@ -155,8 +155,8 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Field | title (required), slug, public_token (uuid auto), description, selection_mode (questions/groups/custom), layout (fixed wizard; tidak diekspos di form), status (draft/published/closed), opens_at, closes_at, allow_anonymous, is_frozen, frozen_at, created_by, identity_fields |
-| Identitas | Field identitas (Nama, Sekolah, Tgl Kunjungan) level kuesioner, fixed wajib; disimpan di `responses` |
+| Field | title (required), slug, public_token (uuid auto), description, selection_mode (questions/groups/custom), layout (fixed wizard; tidak diekspos di form), status (draft/published/closed), opens_at, closes_at, is_frozen, frozen_at, created_by, identity_fields |
+| Identitas | Field identitas (Nama, Sekolah, Tgl Kunjungan) level kuesioner; `enabled`/`required` per field (default tampil + wajib); perubahan berlaku langsung untuk responden baru; disimpan di `responses` |
 | Mode | `questions`=soal individual saja; `groups`=soal kategori terpilih; `custom`=union(kategori, soal individual), dedup, urut group.sort lalu question.sort |
 | Aksi | Simpan draft (resep); publish → resolusi + materialize + `is_frozen=1` + `status=published`; generate QR (SVG) + tampilkan link publik; tutup manual |
 | Aturan | Publik bila `status=published` DAN `now` in [opens_at, closes_at] |
@@ -167,7 +167,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Alur | Buka token → validasi → buat respons draft + draft_token → Intro + Identitas (dari config kuesioner) → langkah sesuai mode (lihat Render mode) → review → submit |
+| Alur | Buka token → validasi → buat respons draft + draft_token → Intro + Identitas (opsional; step dilewati bila semua field hidden) → langkah sesuai mode (lihat Render mode) → review → submit |
 | Render mode | `questions`=1 step flat (tanpa kategori); `groups`=1 step per kategori; `custom`=1 step per kategori + step "Umum" untuk soal individual |
 | Komponen | Form publik memakai komponen `Wizard` Filament di halaman Livewire publik |
 | Autosave | Setiap Next/Prev → upsert answers + update last_step |
@@ -185,7 +185,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 |---|---|
 | Tabel | Default draft + submitted dengan badge status |
 | Kolom | ID, Nama, Sekolah, Tgl Kunjungan, Rata-rata (Skor %), Opsi terpilih, Status, Waktu Submit |
-| Filter | Kuesioner, periode, sekolah, status, niat kembali, rentang avg |
+| Filter | Kuesioner, periode, sekolah, status, niat kembali, rentang avg (periode/sekolah kosong bila field terkait di-hide) |
 | Aksi | View (per kategori), Edit terbatas (Nama & Sekolah; field integritas — Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan — terkunci), export CSV via `ExportAction` Filament (wide format = kolom asli), soft delete, restore, force delete (super admin). Create respons dihapus; respons hanya dari wizard publik. |
 | Aturan | Export mengikuti filter aktif; rata-rata hanya dari `rating`, kosong dilewati |
 | Acceptance | CSV identik struktur kolom sheet asli |
@@ -217,7 +217,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Format | 1 baris = 1 jawaban (rating→score; radio→option) |
 | Aksi | Stream CSV `looker_answers_YYYYMMDD.csv` |
 | Aturan | Update ke Google Sheets via **append** (bukan replace); header apa adanya; duplikat dibiarkan |
-| Anti-spam | Cegah submit ganda (draft_token/ip+visit_date) |
+| Anti-spam | Cegah submit ganda (draft_token/ip+visit_date; cek ip+visit_date hanya bila Tgl Kunjungan aktif & terisi) |
 | Acceptance | CSV cocok dengan Mirror Long Template Questionaire |
 
 #### Mirror Long Template Questionaire (15 kolom)
@@ -240,6 +240,8 @@ SSO, integrasi eksternal, API pihak ketiga.
 | 14 | scale_min | Number |
 | 15 | scale_max | Number |
 
+> Kolom 3–5 (`visit_date`, `respondent_name`, `respondent_school`) dapat kosong bila field identitas terkait di-hide. Struktur 15 kolom & urutan tidak berubah.
+
 ---
 
 ## 9. Aturan Bisnis Global
@@ -247,7 +249,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Kode | Aturan |
 |---|---|
 | BR1 | Skala rating dinamis min–max (mis. 0–10, 1–5, 1–7); label makna per skala |
-| BR2 | Identitas kuesioner (Nama, Sekolah, Tgl Kunjungan) wajib di form publik; kolom DB nullable (untuk import historis) |
+| BR2 | Identitas kuesioner (Nama, Sekolah, Tgl Kunjungan) dapat ditampilkan/disembunyikan & wajib/tidak wajib per kuesioner (default tampil + wajib); kolom DB nullable (untuk import historis) |
 | BR3 | Soal boleh tanpa kategori → section "Umum" (selalu di akhir) |
 | BR4 | Snapshot saat publish |
 | BR5 | Draft tidak kedaluwarsa (tanpa auto-prune) |

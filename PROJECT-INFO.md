@@ -175,9 +175,8 @@ tests/ Feature, Unit
 | frozen_at | timestamp | Yes | null | |
 | opens_at | timestamp | Yes | null | Index |
 | closes_at | timestamp | Yes | null | Index |
-| allow_anonymous | boolean | No | false | |
 | created_by | bigint unsigned | Yes | null | FK → users.id (nullOnDelete) |
-| identity_fields | json | No | `{"name":{"enabled":true,"required":true},"school":{"enabled":true,"required":true},"visit_date":{"enabled":true,"required":true}}` | Identitas level kuesioner (fixed wajib) |
+| identity_fields | json | Yes | null | Identitas level kuesioner — `enabled` & `required` per field (default tampil + wajib via model) |
 | created_at | timestamp | Yes | null | |
 | updated_at | timestamp | Yes | null | |
 | deleted_at | timestamp | Yes | null | SoftDeletes |
@@ -491,3 +490,5 @@ Alur: siapkan file header sama → tab domain tujuan → `File ▸ Import ▸ Up
 | 13 | option | Text |
 | 14 | scale_min | Number |
 | 15 | scale_max | Number |
+
+> Kolom 3–5 (`visit_date`, `respondent_name`, `respondent_school`) dapat kosong bila field terkait di-hide. Header/urutan 15 kolom tetap; append tidak berubah.

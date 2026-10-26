@@ -41,7 +41,7 @@ Rata Skor        = AVG(score)
 Skor %           = AVG((score - scale_min)/(scale_max - scale_min))
 Jumlah Jawaban   = COUNT(response_id)
 Skala            = CONCAT(CAST(scale_min AS TEXT), "–", CAST(scale_max AS TEXT))
-Bln              = TODATE(visit_date, "MONTH")
+Bln              = TODATE(visit_date, "MONTH")   // baris tanpa visit_date tidak masuk tren
 ```
 
 ---
@@ -81,6 +81,8 @@ NO FMT(number; unik nanti) · NAMA FMT(trim) · TANGGAL FMT(date) · RATING numb
 | 13 | option | Text |
 | 14 | scale_min | Number |
 | 15 | scale_max | Number |
+
+> `visit_date`, `respondent_name`, `respondent_school` dapat kosong bila field identitas di-hide; struktur 15 kolom tetap. Filter Tanggal & tren memakai `visit_date`.
 
 > `response_id` unik per responden (`r1`…`r353`); `respondent_name` = `Responden Historis #n`; `respondent_school` = `-`.
 
