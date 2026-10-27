@@ -87,6 +87,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 +----------------------------------------------------------+
 ```
 
+> **Deskripsi** = deskripsi kategori; tampil di atas soal pada step publik (line break dipertahankan).
+
 ---
 
 ## D. SOAL
@@ -109,7 +111,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 +----------------------------------------------------------+
 | Label*   [____________________________________]           |
 | Kategori [ Fasilitas          v ] (opsional)              |
-| Help     [____________________________________]           |
+| Teks bantuan [________________________________]           |
 |                                                          |
 | Tipe*    (o)Rating ( )Radio                               |
 |                                                          |
@@ -117,10 +119,11 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 | -- Select/Radio -- Opsi: [ ..... ] [x] (+ tambah)         |
 |                                                          |
 | [x] Wajib dijawab                                        |
-| Urutan [10]  Aktif [x]      [ SIMPAN ] [ BATAL ]          |
+| Urutan [10]  Aktif [x]      [ SIMPAN ] [ BATAL ]         |
 +----------------------------------------------------------+
 ```
 
+- **Teks bantuan**: tampil di bawah field soal di form publik.
 - **Tipe**: hanya `Rating` & `Radio` tersedia (tipe lain arsitektur, tidak tampil di form).
 - **Skala rating**: divalidasi `min < max`.
 
@@ -302,6 +305,29 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 +----------------------------------------------------------+
 ```
 
+### F2d. Step — Deskripsi Grup + Teks Bantuan
+
+```text
++------------------------------------------------------------------+
+|  [1 Identitas]  [2 Fasilitas]  [3 Pelayanan]  [4 Review]         |
+|  Langkah 2 / 4   [========>.................]                     |
++------------------------------------------------------------------+
+|  Mohon nilai fasilitas berdasarkan pengalaman Anda.              |
+|  Skala 1 = sangat buruk, 7 = sangat baik.                         |
+|                                                                  |
+|  1.1  Fasilitas Toilet *                                         |
+|       (1) (2) (3) (4) (5) (6) (7)                                |
+|       Kebersihan, air, sabun, dan aroma toilet.                  |
+|                                                                  |
+|  1.2  Fasilitas Meeting Poin *                                   |
+|       (1) (2) (3) (4) (5) (6) (7)                                |
+|                                                                  |
+|  [!] Soal bertanda * wajib dijawab.                              |
+|  [ < Sebelumnya ]                             [ Berikutnya > ]   |
++------------------------------------------------------------------+
+```
+
+- Deskripsi grup & teks bantuan opsional; di-escape; line break dipertahankan.
 - Tipe soal = widget render di dalam step; bukan step tersendiri.
 - Next/Prev → autosave. Required gagal → field merah, nilai lain tetap tersimpan.
 - Skala `rating` = radio button min..max (bisa 0, >7); `radio` kategorikal (mis. Niat Kembali) = pilihan teks.

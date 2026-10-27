@@ -344,6 +344,8 @@ users *───* roles                      [model_has_roles]
 
 > Step wizard = kategori; tipe soal hanya menentukan widget render di dalamnya, bukan jumlah/urutan step.
 
+> Teks pendukung: `question_groups.description` dirender di atas soal pada step; `questions.help_text` dirender sebagai helper text di bawah field. Keduanya optional, di-escape, line break dipertahankan.
+
 ---
 
 ## 9. Snapshot saat Publish — `PublishQuestionnaire`

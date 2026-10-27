@@ -135,6 +135,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 |---|---|
 | Field | name (required, uniq), slug (auto), description (nullable), sort, is_active |
 | Aksi | Create / edit / delete (soft) / toggle |
+| Render publik | `description` tampil sebagai teks kecil abu-abu di atas soal pada step kategori; line break dipertahankan; null/kosong tidak dirender |
 | Aturan | Kategori nonaktif tidak muncul di builder/publik |
 | Edge case | Kategori dihapus → soal jadi tanpa kategori (`question_group_id=null` → "Umum") |
 | Acceptance | Urutan kategori = urutan langkah wizard |
@@ -147,6 +148,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Tipe | rating, text, textarea, select, radio, date, number |
 | Validasi | rating integer min..max; text max 255; textarea max 2000; select/radio in(options); date Y-m-d; number numeric; rating scale_min < scale_max |
 | Render | Tipe menentukan widget di dalam step kategori (bukan step tersendiri): `rating` = radio skala min–max soal (numerik); `radio` = pilihan kategorikal berlabel teks; tipe lain reserved (future) |
+| Render publik | `help_text` tampil sebagai helper text di bawah field; line break dipertahankan; null/kosong tidak dirender |
 | MVP | Tipe diimplementasikan: `rating`, `radio`; lainnya arsitektur saja. Form hanya menampilkan pilihan `rating` & `radio`. |
 | Edge case | Ubah tipe soal yang dipakai kuesioner published dilarang untuk snapshot |
 | Acceptance | Soal rating menampilkan 1..7 + label makna |
@@ -170,6 +172,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Alur | Buka token → validasi → set draft_token (tanpa membuat respons) → Intro + Identitas (opsional; step dilewati bila semua field hidden) → langkah sesuai mode (lihat Render mode) → review → submit; draft dibuat saat interaksi pertama |
 | Render mode | `questions`=1 step flat (tanpa kategori); `groups`=1 step per kategori; `custom`=1 step per kategori + step "Umum" untuk soal individual |
 | Komponen | Form publik memakai komponen `Wizard` Filament di halaman Livewire publik |
+| Teks pendukung | Deskripsi grup tampil di atas soal pada step kategori; `help_text` soal tampil di bawah field; keduanya optional, di-escape, line break dipertahankan |
 | Autosave | Saat field berubah (blur/pilih opsi) & Next → upsert answers; draft dibuat saat interaksi pertama (bukan saat membuka halaman) |
 | Validasi | Next memvalidasi required langkah; gagal → tetap simpan nilai terisi, tidak maju |
 | Submit | Validasi semua required server-side → `status=submitted` + `submitted_at` |
