@@ -371,6 +371,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 
 - **Badge**: submitted=hijau, draft=kuning [!]. **Empty**: "Belum ada respons".
 - **Export CSV** = wide (kolom asli, F7). **Export Looker** = long 15 kolom (F10).
+- Export mengikuti filter & pencarian yang sudah diterapkan; submitted-only; soft-deleted tidak pernah ikut.
 
 ### G2. Detail
 

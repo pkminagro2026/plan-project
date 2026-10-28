@@ -188,9 +188,9 @@ SSO, integrasi eksternal, API pihak ketiga.
 |---|---|
 | Tabel | Default draft + submitted dengan badge status |
 | Kolom | ID, Nama, Sekolah, Tgl Kunjungan, Rata-rata (Skor %), Opsi terpilih, Status, Waktu Submit |
-| Filter | Kuesioner, periode, sekolah, status, niat kembali, rentang avg (periode/sekolah kosong bila field terkait di-hide) |
-| Aksi | View (per kategori), Edit terbatas (Nama & Sekolah; field integritas — Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan — terkunci), export CSV via `ExportAction` Filament (wide format = kolom asli), soft delete, restore, force delete (super admin). Create respons dihapus; respons hanya dari wizard publik. |
-| Aturan | Export mengikuti filter aktif; rata-rata hanya dari `rating`, kosong dilewati |
+| Filter | Kuesioner, periode (`visit_date`), sekolah, status, opsi (termasuk Niat Kembali) |
+| Aksi | View (per kategori), Edit terbatas (Nama & Sekolah; field integritas — Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan — terkunci), export CSV (wide format = kolom asli) via `WideResponseExport`, soft delete, restore, force delete (super admin). Create respons dihapus; respons hanya dari wizard publik. |
+| Aturan | Export submitted-only; soft-deleted selalu dikecualikan; filter Trashed tidak memengaruhi export; filter/pencarian yang sudah diterapkan ikut; kolom soal mengikuti filter Kuesioner; urutan `id ASC`; UTF-8 BOM + CRLF; rata-rata hanya dari `rating`, kosong dilewati |
 | Acceptance | CSV identik struktur kolom sheet asli |
 
 ### F8 — Dashboard
@@ -216,10 +216,10 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Aspek | Detail |
 |---|---|
 | Deskripsi | Hasilkan CSV long sesuai **Mirror Long Template Questionaire** (di bawah) |
-| Cakupan | Semua respons submitted (semua kuesioner) |
+| Cakupan | Semua respons submitted yang lolos filter/pencarian yang sudah diterapkan; semua kuesioner bila tanpa filter |
 | Format | 1 baris = 1 jawaban (rating→score; radio→option) |
-| Aksi | Stream CSV `looker_answers_YYYYMMDD.csv` |
-| Aturan | Update ke Google Sheets via **append** (bukan replace); header apa adanya; duplikat dibiarkan |
+| Aksi | Stream CSV 15 kolom `looker_answers_YYYYMMDD_HHmm.csv` |
+| Aturan | Update ke Google Sheets via **append** (bukan replace); header apa adanya; duplikat dibiarkan; soft-deleted dikecualikan; filter Trashed diabaikan; urutan `id ASC`; tanpa BOM; filter yang belum diterapkan tidak ikut; append dengan filter aktif hanya menambah subset |
 | Anti-spam | Cegah submit ganda (draft_token/ip+visit_date; cek ip+visit_date hanya bila Tgl Kunjungan aktif & terisi) |
 | Acceptance | CSV cocok dengan Mirror Long Template Questionaire |
 

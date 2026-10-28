@@ -19,11 +19,11 @@
 
 | Paket | Fungsi |
 |---|---|
-| filament/filament ^5 | Panel admin, resource, widget, ExportAction (CSV) |
+| filament/filament ^5 | Panel admin, resource, widget |
 | bezhansalleh/filament-shield | UI permission + role (RBAC) |
 | spatie/laravel-permission | Engine role/permission di DB |
 
-> Catatan: export CSV memakai `ExportAction` bawaan Filament; QR code memakai bawaan Filament (`chillerlan/php-qrcode`); slug via `Str::slug`. Tidak ada paket mail/verification (fitur email tidak dipakai).
+> Catatan: export CSV/Looker memakai custom service (`WideResponseExport`/`LookerLongExport`); QR code memakai bawaan Filament (`chillerlan/php-qrcode`); slug via `Str::slug`. Tidak ada paket mail/verification (fitur email tidak dipakai).
 
 ### 2.1 Pemetaan Filament (Default vs Paket vs Custom)
 
@@ -33,7 +33,7 @@
 | CRUD Kategori/Soal/Kuesioner/User + kelola Respons (view, edit terbatas, delete) | Resource + form/table Filament (default) |
 | Satu entity Soal semua tipe | `Select` tipe + field kondisional (default) |
 | Dashboard | Widget StatsOverview/Chart/Table (default) |
-| Export CSV | `ExportAction` (default) |
+| Export CSV/Looker | `WideResponseExport` / `LookerLongExport` (custom) |
 | Soft delete/restore/force | SoftDeletes + trashed filter (default) |
 | Aktif/nonaktif user | Toggle + gate (default) |
 | Wizard form publik | Komponen Filament `Wizard` (default) + halaman guest (custom) |
@@ -101,7 +101,7 @@ routes/web.php -> /q/{token} publik
 tests/ Feature, Unit
 ```
 
-> Form publik memakai komponen `Filament\Schemas\Components\Wizard`. Export CSV memakai `Filament\Actions\ExportAction`.
+> Form publik memakai komponen `Filament\Schemas\Components\Wizard`. Export CSV/Looker memakai `WideResponseExport`/`LookerLongExport` dan mengikuti filter/pencarian yang sudah diterapkan.
 
 ---
 
@@ -449,7 +449,7 @@ users *───* roles                      [model_has_roles]
 | Jenis | Cakupan |
 |---|---|
 | Unit | Resolver (questions/groups/custom), rata-rata, mapping import |
-| Feature | RBAC (403 tanpa permission), publik (tenggat/status), autosave & resume, required memblokir Next, snapshot tidak berubah, export CSV, update password gated |
+| Feature | RBAC (403 tanpa permission), publik (tenggat/status), autosave & resume, required memblokir Next, snapshot tidak berubah, export CSV/Looker mengikuti filter, update password gated |
 | Manual | Responsif mobile, QR scan, resume lintas device |
 
 ---

@@ -110,7 +110,7 @@ NIK key · NO. KTP · NO. KK · NAMA · INISIAL · TGL JOIN FMT(date) · GRUP AB
 
 ## C. Upload Append (perbaruan tab)
 
-**Aturan:** file upload ber-**header identik** dengan tab; **append** baris di bawah; jangan tambah/kurangi/rename/geser kolom; duplikat dibiarkan; boleh parsial (isi tab yang diperlukan saja).
+**Aturan:** file upload ber-**header identik** dengan tab; **append** baris di bawah; jangan tambah/kurangi/rename/geser kolom; duplikat dibiarkan; boleh parsial (isi tab yang diperlukan saja). Export Looker mengikuti filter/pencarian yang sudah diterapkan; reset filter sebelum append data penuh. Soft-deleted dan draft tidak pernah diekspor.
 
 **Langkah:**
 1. Siapkan file (CSV/XLSX) header sama.
