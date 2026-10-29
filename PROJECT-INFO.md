@@ -177,7 +177,8 @@ tests/ Feature, Unit
 | opens_at | timestamp | Yes | null | Index |
 | closes_at | timestamp | Yes | null | Index |
 | created_by | bigint unsigned | Yes | null | FK → users.id (nullOnDelete) |
-| identity_fields | json | Yes | null | Identitas level kuesioner — `enabled` & `required` per field (default tampil + wajib via model) |
+| identity_fields | json | Yes | null | Identitas level kuesioner — `enabled` & `required` per field (default tampil + wajib via model); terkunci setelah publish |
+| question_snapshot | json | Yes | null | Snapshot isi soal/group saat publish |
 | created_at | timestamp | Yes | null | |
 | updated_at | timestamp | Yes | null | |
 | deleted_at | timestamp | Yes | null | SoftDeletes |
@@ -353,11 +354,11 @@ users *───* roles                      [model_has_roles]
 
 | Step | Aksi |
 |---|---|
-| 1 | Validasi minimal 1 soal + `opens_at < closes_at` |
+| 1 | Validasi minimal 1 soal + `opens_at < closes_at` + belum pernah publish |
 | 2 | Resolve daftar soal |
-| 3 | Hapus + insert ulang `questionnaire_question` (materialize) |
+| 3 | Simpan JSON `question_snapshot` + sync `questionnaire_question` |
 | 4 | `is_frozen=1`, `frozen_at=now()`, `status=published` |
-| 5 | Generate `public_token` bila belum ada |
+| 5 | Generate `public_token` bila belum ada; publish tidak bisa diulang |
 | 6 | (opsional) generate artefak QR |
 
 ---
@@ -366,8 +367,8 @@ users *───* roles                      [model_has_roles]
 
 | Step | Aksi |
 |---|---|
-| 1 | `GET /q/{token}` → validasi (published & dalam rentang) → tampilkan Intro + Identitas (`identity_fields`) |
-| 2 | Find `responses` by `draft_token`; **buat saat interaksi pertama** (blur/pilih opsi/Next), `status=draft` |
+| 1 | `GET /q/{token}` → validasi (published & dalam rentang) → Identitas (`identity_fields`) |
+| 2 | Find `responses` by `draft_token` dari session/cookie; **buat saat interaksi pertama**, `status=draft` |
 | 3 | Autosave saat field berubah (blur/pilih opsi) & Next → upsert `answers`. Next: validasi required; gagal → simpan, tidak maju. Prev: client-side (tanpa request) |
 | 4 | Submit → validasi semua required → `status=submitted`, `submitted_at=now()` |
 
@@ -382,7 +383,7 @@ users *───* roles                      [model_has_roles]
 | `GET /` | Dashboard panel admin (Filament) |
 | `GET /login` | Login admin |
 | `GET /questionnaires`, `/responses`, dst | Resource panel admin (root) |
-| `GET /q/{token}` | PublicQuestionnaireWizard (intro + identitas + step + review) |
+| `GET /q/{token}` | PublicQuestionnaireWizard (identitas + step + review) |
 | LIVEWIRE | autosave / next / prev / submit |
 
 - **Panel admin di root** (`/`) — bukan `/admin`.
@@ -400,7 +401,7 @@ users *───* roles                      [model_has_roles]
 | Kuesioner | SA,A,O,V | SA,A | SA,A | SA,A | SA | SA | publish (SA,A) |
 | Respons | SA,A,O,V | — | SA,A,O | SA,A | SA,A | SA | export (SA,A,O) |
 | User | SA,A | SA,A | SA,A | SA,A | SA | SA | update_password_user (SA,A) |
-| Role | SA | SA | SA | SA | SA | SA | assign_role (SA) |
+| Role | SA | SA | SA | SA | SA | SA | assign_role (pemegang permission) |
 
 > SA=Super Admin (bypass `Gate::before`), A=Admin, O=Operator, V=Viewer.
 > Respons: Create dihapus; Update terbatas Nama/Sekolah (field lain terkunci).
@@ -450,8 +451,8 @@ users *───* roles                      [model_has_roles]
 | Jenis | Cakupan |
 |---|---|
 | Unit | Resolver (questions/groups/custom), rata-rata, mapping import |
-| Feature | RBAC (403 tanpa permission), publik (tenggat/status), autosave & resume, required memblokir Next, snapshot tidak berubah, export Excel/Looker mengikuti filter, update password gated |
-| Manual | Responsif mobile, QR scan, resume lintas device |
+| Feature | RBAC (403 tanpa permission), publik (tenggat/status), autosave & resume browser, device token per kuesioner, snapshot tidak berubah, export Excel/Looker mengikuti filter, update password gated |
+| Manual | Responsif mobile, QR scan, resume pada browser/perangkat yang sama |
 
 ---
 
@@ -463,6 +464,7 @@ php artisan shield:generate --all
 php artisan db:seed
 php artisan filament:assets
 php artisan optimize
+php artisan questionnaires:backfill-snapshots
 # Tanpa scheduler prune draft (draft tanpa batas waktu).
 ```
 

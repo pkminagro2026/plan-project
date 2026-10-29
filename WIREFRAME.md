@@ -221,7 +221,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 +-----------------------------------------------------------------+
 ```
 
-- **Publish**: konfirmasi "Soal akan dibekukan (snapshot). Lanjut?"
+- **Publish**: konfirmasi "Soal, group, dan identitas akan dibekukan. Setelah publish tidak bisa diubah; buat kuesioner baru untuk perubahan. Lanjut?"
+- **Identitas**: dapat diubah saat draft; terkunci setelah publish.
 - **Error**: "Minimal 1 soal", "Tutup harus setelah Buka".
 
 ### E3. QR Modal
@@ -229,7 +230,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 ```text
 +--------------------------------------------------+
 | QR +----------------+  https://app.id/q/a1b2c3d4 |
-|    | ## qr ## ## ## |  [SVG + link publik]       |
+|    | ## qr ## ## ## |  [Download QR SVG] [link]  |
 |    +----------------+                            |
 +--------------------------------------------------+
 ```
@@ -238,18 +239,16 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 
 ## F. FORM PUBLIK (WIZARD)
 
-### F1. Intro + Identitas
+### F1. Identitas
 
 ```text
 +--------------------------------------------------+
 |  Penilaian Kunjungan Q2                          |
 |  Deskripsi singkat kuesioner...                  |
-|  4 langkah, ±7 soal, ±2 menit                    |
 |                                                  |
 |  Nama*[____] Sekolah*[____] Tgl Kunjungan*[date] |
 |  (Sumber: identity_fields; hidden/optional OK)   |
 |                                                  |
-|  [                    MULAI                  ]   |
 +--------------------------------------------------+
 ```
 

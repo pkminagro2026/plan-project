@@ -98,7 +98,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Kategori (Group) | Kelompok soal = satu langkah wizard |
 | Soal (Question) | Unit pertanyaan (tipe, skala, required); boleh tanpa kategori |
 | Kuesioner | Entitas link publik berisi resep soal + tenggat |
-| Snapshot | Pembekuan daftar soal saat publish |
+| Snapshot | Pembekuan isi soal dan group saat publish; perubahan master setelahnya tidak memengaruhi kuesioner published |
 | Draft | Respons terisi sebagian (autosave) |
 | Submitted | Respons final |
 | Identitas | Metadata responden (Nama, Sekolah, Tgl Kunjungan) di level kuesioner; tiap field punya `enabled`/`required` (default tampil + wajib); disimpan per respons |
@@ -150,7 +150,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Render | Tipe menentukan widget di dalam step kategori (bukan step tersendiri): `rating` = radio skala min–max soal (numerik); `radio` = pilihan kategorikal berlabel teks; tipe lain reserved (future) |
 | Render publik | `help_text` tampil sebagai helper text di bawah field; line break dipertahankan; null/kosong tidak dirender |
 | MVP | Tipe diimplementasikan: `rating`, `radio`; lainnya arsitektur saja. Form hanya menampilkan pilihan `rating` & `radio`. |
-| Edge case | Ubah tipe soal yang dipakai kuesioner published dilarang untuk snapshot |
+| Edge case | Perubahan master setelah publish tidak memengaruhi snapshot; buat kuesioner baru untuk perubahan |
 | Acceptance | Soal rating menampilkan 1..7 + label makna |
 
 ### F5 — Builder Kuesioner & Link Publik
@@ -158,29 +158,29 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Aspek | Detail |
 |---|---|
 | Field | title (required), slug, public_token (uuid auto), description, selection_mode (questions/groups/custom), layout (fixed wizard; tidak diekspos di form), status (draft/published/closed), opens_at, closes_at, is_frozen, frozen_at, created_by, identity_fields |
-| Identitas | Field identitas (Nama, Sekolah, Tgl Kunjungan) level kuesioner; `enabled`/`required` per field (default tampil + wajib); perubahan berlaku langsung untuk responden baru; disimpan di `responses` |
+| Identitas | Field identitas (Nama, Sekolah, Tgl Kunjungan) level kuesioner; `enabled`/`required` per field (default tampil + wajib); dapat diubah saat draft, terkunci setelah publish; disimpan di `responses` |
 | Mode | `questions`=soal individual saja; `groups`=soal kategori terpilih; `custom`=union(kategori, soal individual), dedup, urut group.sort lalu question.sort |
-| Aksi | Simpan draft (resep); publish → resolusi + materialize + `is_frozen=1` + `status=published`; generate QR (SVG) + tampilkan link publik; tutup manual |
+| Aksi | Simpan draft (resep); publish sekali → snapshot + materialize + `is_frozen=1` + `status=published`; generate QR (SVG) + tampilkan link publik; tutup manual; tidak boleh re-publish |
 | Aturan | Publik bila `status=published` DAN `now` in [opens_at, closes_at] |
-| Edge case | Master soal diubah setelah publish → kuesioner tidak berubah (frozen); publish tanpa soal ditolak; `opens_at >= closes_at` ditolak |
+| Edge case | Master soal/group diubah setelah publish → kuesioner tidak berubah karena snapshot; publish tanpa soal ditolak; publish kedua ditolak; `opens_at >= closes_at` ditolak |
 | Acceptance | QR scan membuka `/q/{token}`; di luar tenggat → "Ditutup" |
 
 ### F6 — Form Publik (Wizard) + Autosave
 
 | Aspek | Detail |
 |---|---|
-| Alur | Buka token → validasi → set draft_token (tanpa membuat respons) → Intro + Identitas (opsional; step dilewati bila semua field hidden) → langkah sesuai mode (lihat Render mode) → review → submit; draft dibuat saat interaksi pertama |
+| Alur | Buka token → validasi → set draft_token (tanpa membuat respons) → Identitas (opsional; step dilewati bila semua field hidden) → langkah sesuai mode (lihat Render mode) → review → submit; draft dibuat saat interaksi pertama |
 | Render mode | `questions`=1 step flat (tanpa kategori); `groups`=1 step per kategori; `custom`=1 step per kategori + step "Umum" untuk soal individual |
 | Komponen | Form publik memakai komponen `Wizard` Filament di halaman Livewire publik |
 | Teks pendukung | Deskripsi grup tampil di atas soal pada step kategori; `help_text` soal tampil di bawah field; keduanya optional, di-escape, line break dipertahankan |
 | Autosave | Saat field berubah (blur/pilih opsi) & Next → upsert answers; draft dibuat saat interaksi pertama (bukan saat membuka halaman) |
 | Validasi | Next memvalidasi required langkah; gagal → tetap simpan nilai terisi, tidak maju |
 | Submit | Validasi semua required server-side → `status=submitted` + `submitted_at` |
-| Resume | draft_token dapat lanjut lintas device; anti-duplikat per token |
-| Anti-spam | Rate limit per IP + honeypot (opsional captcha) |
+| Resume | draft_token disimpan di session + cookie browser; resume pada browser/perangkat yang sama; anti-duplikat per kuesioner per browser/perangkat |
+| Anti-spam | Rate limit + honeypot; submit ganda dicegah oleh device token per kuesioner |
 | Draft | Tanpa batas waktu |
 | Edge case | Token invalid/expired/closed → halaman error; sudah submit → "Terima kasih" |
-| Acceptance | Tutup browser di tengah → buka lagi → data terisi kembali (resume) |
+| Acceptance | Tutup browser di tengah → buka lagi di browser/perangkat yang sama → data terisi kembali |
 
 ### F7 — Manage Respons
 
@@ -189,7 +189,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Tabel | Default draft + submitted dengan badge status |
 | Kolom | ID, Nama, Sekolah, Tgl Kunjungan, Rata-rata (Skor %), Opsi terpilih, Status, Waktu Submit |
 | Filter | Kuesioner, periode (`visit_date`), sekolah, status, opsi (termasuk Niat Kembali) |
-| Aksi | View (per kategori), Edit terbatas (Nama & Sekolah; field integritas — Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan — terkunci), export Excel (XLSX, wide format = kolom asli) via `WideResponseExport`, soft delete, restore, force delete (super admin). Create respons dihapus; respons hanya dari wizard publik. |
+| Aksi | View (per kategori), Edit terbatas (Nama & Sekolah; field integritas — Questionnaire, Status, Draft token, Waktu Submit, Tgl Kunjungan — terkunci), export Excel (XLSX, wide format + kolom kuesioner) via `WideResponseExport`, soft delete, restore, force delete (super admin). Create respons dihapus; respons hanya dari wizard publik. |
 | Aturan | Export submitted-only; soft-deleted selalu dikecualikan; filter Trashed tidak memengaruhi export; filter/pencarian yang sudah diterapkan ikut; kolom soal mengikuti filter Kuesioner; urutan `id DESC`; XLSX dengan header styled, freeze, autofilter, lebar kolom, format tanggal/angka; rata-rata hanya dari `rating`, kosong dilewati |
 | Acceptance | XLSX identik struktur kolom sheet asli |
 
@@ -197,8 +197,8 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Aspek | Detail |
 |---|---|
-| Widget | Jumlah Pertanyaan; Jumlah Kategori; Jumlah Responded (submitted; draft dipisah); Rata-rata Skor % (dari `rating`); Distribusi opsi per soal (`radio`/`select`); Chart Respons/Bulan; Soal Terendah berdasarkan Skor % (dari `rating`); Trend completion |
-| Filter | Periode & kuesioner |
+| Widget | Jumlah Pertanyaan; Jumlah Kategori; Jumlah Respons (submitted; draft dipisah); Rata-rata Skor % (submitted); Distribusi opsi per soal (`radio`/`select`); Chart Respons/Bulan (submitted, `visit_date`); Soal Terendah berdasarkan Skor % (submitted, semua kuesioner); Tren Penyelesaian |
+| Filter | Kuesioner per widget; periode memakai `visit_date` |
 | Acceptance | Angka konsisten dengan tabel respons |
 
 ### F9 — Manage User
@@ -220,7 +220,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Format | 1 baris = 1 jawaban (rating→score; radio→option) |
 | Aksi | Generate XLSX 15 kolom `looker_answers_YYYYMMDD_HHmm.xlsx` |
 | Aturan | Update ke Google Sheets via **append** (bukan replace); header apa adanya; duplikat dibiarkan; soft-deleted dikecualikan; filter Trashed diabaikan; urutan `id DESC`; filter yang belum diterapkan tidak ikut; append dengan filter aktif hanya menambah subset |
-| Anti-spam | Cegah submit ganda (draft_token/ip+visit_date; cek ip+visit_date hanya bila Tgl Kunjungan aktif & terisi) |
+| Anti-spam | Cegah submit ganda dengan device token per kuesioner; identitas dan IP tidak dipakai memblokir |
 | Acceptance | XLSX cocok dengan Mirror Long Template Questionaire |
 
 #### Mirror Long Template Questionaire (15 kolom)
@@ -252,9 +252,9 @@ SSO, integrasi eksternal, API pihak ketiga.
 | Kode | Aturan |
 |---|---|
 | BR1 | Skala rating dinamis min–max (mis. 0–10, 1–5, 1–7); label makna per skala |
-| BR2 | Identitas kuesioner (Nama, Sekolah, Tgl Kunjungan) dapat ditampilkan/disembunyikan & wajib/tidak wajib per kuesioner (default tampil + wajib); kolom DB nullable (untuk import historis) |
+| BR2 | Identitas kuesioner (Nama, Sekolah, Tgl Kunjungan) dapat ditampilkan/disembunyikan & wajib/tidak wajib per kuesioner; dapat diubah saat draft, terkunci setelah publish; kolom DB nullable (untuk import historis) |
 | BR3 | Soal boleh tanpa kategori → section "Umum" (selalu di akhir) |
-| BR4 | Snapshot saat publish |
+| BR4 | Snapshot isi soal/group saat publish; perubahan master setelahnya tidak memengaruhi published; perubahan wajib kuesioner baru |
 | BR5 | Draft tidak kedaluwarsa (tanpa auto-prune) |
 | BR6 | Tanggal & angka tersimpan tipe asli; tampilan locale id (koma desimal) |
 | BR7 | Rata-rata dihitung server-side |
@@ -266,7 +266,7 @@ SSO, integrasi eksternal, API pihak ketiga.
 
 | Entitas | Transisi |
 |---|---|
-| Kuesioner | draft → published → closed (published → draft hanya bila belum ada respons) |
+| Kuesioner | draft → published → closed; published tidak bisa kembali ke draft atau publish ulang |
 | Respons | draft → submitted (soft-delete sebagai flag terpisah) |
 
 ---
