@@ -361,7 +361,7 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 +----------------------------------------------------------------------+
 | Respons                                                              |
 | Filter: [Kuesioner v][Periode v][Sekolah..][Status v][Opsi v][Reset]  |
-| [ Export CSV ]   [ Export Looker ]                                    |
+| [ Export Excel ] [ Export Looker ]                                    |
 |                                                                      |
 | ID  | Nama  | Sekolah | Tgl      | Avg  | Opsi | Status        | Waktu |
 | 351 | Ani   | SMPN 1  |12/10/24  | 6.14 | YA   | (v)submitted  | ...   |
@@ -370,8 +370,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 ```
 
 - **Badge**: submitted=hijau, draft=kuning [!]. **Empty**: "Belum ada respons".
-- **Export CSV** = wide (kolom asli, F7). **Export Looker** = long 15 kolom (F10).
-- Export mengikuti filter & pencarian yang sudah diterapkan; submitted-only; soft-deleted tidak pernah ikut.
+- **Export Excel** = wide XLSX (kolom asli, F7). **Export Looker** = long 15 kolom XLSX (F10).
+- Kedua export XLSX mengikuti filter & pencarian yang sudah diterapkan; submitted-only; soft-deleted tidak pernah ikut.
 
 ### G2. Detail
 
