@@ -444,6 +444,8 @@ Prinsip: mobile-first. Format: ASCII + anotasi + state + interaksi.
 |-----------------------------------------------------------------|
 | CUSTOM: [x]publish_questionnaire [x]export_response             |
 |         [x]update_password_user  [ ]assign_role                 |
+| WIDGET: [x]View:StatsOverview [x]View:ResponsesPerMonthChart   |
+|         [x]View:OptionDistributionChart [x]View:LowestCriteriaTable |
 | [ SIMPAN ]                                                      |
 +-----------------------------------------------------------------+
 ```

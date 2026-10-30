@@ -125,8 +125,8 @@ SSO, integrasi eksternal, API pihak ketiga.
 |---|---|
 | Deskripsi | Role & permission tersimpan di DB (`filament-shield` + `spatie/laravel-permission`); admin membuat role, memilih permission, menempel ke user A/B/C |
 | Entitas | roles, permissions, role_has_permissions, model_has_roles |
-| Permission | Granular per resource/aksi (Shield) + custom: `publish_questionnaire`, `export_response`, `update_password_user`, `assign_role` |
-| Aturan | Super Admin bypass (`Gate::before`) |
+| Permission | Granular per resource/aksi (Shield) + custom: `publish_questionnaire`, `export_response`, `update_password_user`, `assign_role`; widget: `View:StatsOverview`, `View:ResponsesPerMonthChart`, `View:OptionDistributionChart`, `View:LowestCriteriaTable` |
+| Aturan | Super Admin bypass (`Gate::before`); widget memakai `HasWidgetShield`; Admin/Operator/Viewer default mendapat permission widget; custom role harus diberi permission widget manual |
 | Acceptance | User tanpa permission tidak melihat menu & 403 saat akses langsung |
 
 ### F3 — Kategori Soal

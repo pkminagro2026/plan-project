@@ -406,6 +406,8 @@ users *───* roles                      [model_has_roles]
 > SA=Super Admin (bypass `Gate::before`), A=Admin, O=Operator, V=Viewer.
 > Respons: Create dihapus; Update terbatas Nama/Sekolah (field lain terkunci).
 
+> Widget: `View:StatsOverview`, `View:ResponsesPerMonthChart`, `View:OptionDistributionChart`, `View:LowestCriteriaTable`; default diberikan ke Admin/Operator/Viewer, custom role harus diberi manual.
+
 ---
 
 ## 13. Seeder Master
